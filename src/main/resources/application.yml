@@ -1,0 +1,15 @@
+spring:
+  profiles:
+    active: dev
+#    active: prod
+  http:
+    encoding:
+      charset: utf-8
+      enabled: true
+  cache:
+    ehcache:
+      config: classpath:cache/ehcache-local.xml
+
+server:
+  servlet:
+    context-path: /habit
