@@ -9,7 +9,7 @@ import net.sf.ehcache.Element;
  */
 public class EhCacheUtils {
 
-    private static CacheManager cacheManager = new CacheManager("src/resources/cache/ehcache-local.xml");
+    private static CacheManager cacheManager = CacheManager.create();
 
     private static final String SYS_CACHE    = "sysCache";
 

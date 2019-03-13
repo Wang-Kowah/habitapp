@@ -6,7 +6,6 @@ import com.kowah.habitapp.bean.enums.ErrorCode;
 import com.kowah.habitapp.dbmapper.NoteMapper;
 import com.kowah.habitapp.dbmapper.UserMapper;
 import com.kowah.habitapp.service.SendMsgService;
-import com.kowah.habitapp.utils.EhCacheUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
-import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
@@ -24,7 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.web.multipart.MultipartFile;
+import static com.alibaba.druid.util.Utils.md5;
 
 @Controller
 @RequestMapping(value = "/user")
@@ -38,7 +37,7 @@ public class UserController {
     /**
      * 用户头像存储地址
      */
-    private static final String PROFILE_PIC_LOCATION = "C:" + File.separator + "Data" + File.separator + "Pic";
+    private static final String PROFILE_PIC_LOCATION = "C:" + File.separator + "Data" + File.separator + "pic";
 
     @Autowired
     private NoteMapper noteMapper;
@@ -137,6 +136,7 @@ public class UserController {
             note.setType(type);
             note.setContent(msg);
             note.setCreateTime((int) System.currentTimeMillis());
+            noteMapper.insertSelective(note);
         } catch (Exception e) {
             logger.error("", e);
             errorCode = ErrorCode.SYSTEM_ERROR;
@@ -168,7 +168,14 @@ public class UserController {
                 throw new Exception();
             }
         } catch (Exception e) {
-            errorCode = ErrorCode.USER_IS_NOT_EXIST;
+            errorCode = ErrorCode.PARAM_ERROR;
+            result.put("retcode", errorCode.getCode());
+            result.put("msg", errorCode.getMsg());
+            return result;
+        }
+
+        if (userMapper.selectByMobile(mobile) != null) {
+            errorCode = ErrorCode.MOBILE_EXIST_ERROR;
             result.put("retcode", errorCode.getCode());
             result.put("msg", errorCode.getMsg());
             return result;
@@ -178,9 +185,11 @@ public class UserController {
             User user = new User();
             user.setMobile(mobile);
             user.setName(name);
-            user.setPassword(password);
+            user.setPassword(md5(password));
             user.setCreateTime((int) System.currentTimeMillis());
+            userMapper.insertAndGetUid(user);
         } catch (Exception e) {
+            logger.error("", e);
             errorCode = ErrorCode.SYSTEM_ERROR;
             result.put("retcode", errorCode.getCode());
             result.put("msg", errorCode.getMsg());
@@ -192,13 +201,54 @@ public class UserController {
     }
 
     /**
-     * 发送验证码
+     * 用户登录
+     */
+    @RequestMapping(value = "/logIn", method = RequestMethod.POST)
+    @ResponseBody
+    public Map<String, Object> logIn(HttpServletRequest request, HttpServletResponse response) {
+        Map<String, Object> result = new HashMap<>();
+        ErrorCode errorCode = ErrorCode.SUCCESS;
+        String mobileStr = request.getParameter("mobile");
+        String password = request.getParameter("password");
+
+        int mobile;
+        try {
+            mobile = Integer.parseInt(mobileStr);
+            if (password.equals("")) {
+                throw new Exception();
+            }
+        } catch (Exception e) {
+            errorCode = ErrorCode.PARAM_ERROR;
+            result.put("retcode", errorCode.getCode());
+            result.put("msg", errorCode.getMsg());
+            return result;
+        }
+
+        User user = userMapper.selectByMobile(mobile);
+        if (user == null) {
+            errorCode = ErrorCode.USER_IS_NOT_EXIST;
+            result.put("retcode", errorCode.getCode());
+            result.put("msg", errorCode.getMsg());
+            return result;
+        }
+
+        if (!md5(password).equals(user.getPassword())) {
+            errorCode = ErrorCode.LOGIN_FAIL;
+        }
+
+        result.put("retcode", errorCode.getCode());
+        result.put("msg", errorCode.getMsg());
+        return result;
+    }
+
+    /**
+     * 获取验证码
      */
     @RequestMapping(value = "/getVerifyCode", method = RequestMethod.POST)
     @ResponseBody
     public Map<String, Object> verifyCode(HttpServletRequest request, HttpServletResponse response) {
         Map<String, Object> result = new HashMap<>();
-        ErrorCode errorCode = ErrorCode.SUCCESS;
+        ErrorCode errorCode;
         String mobile = request.getParameter("mobile");
 
         if (mobile.length() != 11) {
@@ -207,7 +257,14 @@ public class UserController {
             result.put("msg", errorCode.getMsg());
             return result;
         }
-        //TODO 禁止重复注册
+
+        if (userMapper.selectByMobile((int) Long.parseLong(mobile)) != null) {
+            errorCode = ErrorCode.MOBILE_EXIST_ERROR;
+            result.put("retcode", errorCode.getCode());
+            result.put("msg", errorCode.getMsg());
+            return result;
+        }
+
         errorCode = sendMsgService.sendVerifyCode(mobile);
         result.put("retcode", errorCode.getCode());
         result.put("msg", errorCode.getMsg());
@@ -215,7 +272,7 @@ public class UserController {
     }
 
     /**
-     * 验证码模块
+     * 验证码校验模块
      */
     @RequestMapping(value = "/checkVerifyCode", method = RequestMethod.POST)
     @ResponseBody
@@ -326,6 +383,23 @@ public class UserController {
                     os.write(buffer, 0, i);
                     i = bis.read(buffer);
                 }
+            } else {
+                filePath = PROFILE_PIC_LOCATION + File.separator + "default.jpeg";
+                file = new File(filePath);
+
+                String suffix = filePath.substring(filePath.lastIndexOf("."));
+                response.setContentType("application/force-download");// 设置强制下载不打开
+                response.addHeader("Content-Disposition", "attachment;fileName=default" + suffix);// 设置文件名
+                byte[] buffer = new byte[1024];
+                bis = new BufferedInputStream(new FileInputStream(file));
+
+                OutputStream os = response.getOutputStream();
+                int i = bis.read(buffer);
+                while (i != -1) {
+                    os.write(buffer, 0, i);
+                    i = bis.read(buffer);
+                }
+
             }
         } catch (Exception e) {
             logger.error("", e);
@@ -344,4 +418,6 @@ public class UserController {
         }
         return null;
     }
+
+
 }

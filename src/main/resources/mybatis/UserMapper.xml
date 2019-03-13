@@ -24,14 +24,63 @@
     where uid = #{uid,jdbcType=INTEGER}
   </delete>
   <insert id="insert" parameterType="com.kowah.habitapp.bean.User" >
-    insert into t_user_list (uid, mobile, name, 
-      password, profile, create_time, 
+    insert into t_user_list (uid, mobile, name,
+      password, profile, create_time,
       del_flag)
-    values (#{uid,jdbcType=INTEGER}, #{mobile,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, 
-      #{password,jdbcType=VARCHAR}, #{profile,jdbcType=VARCHAR}, #{createTime,jdbcType=INTEGER}, 
+    values (#{uid,jdbcType=INTEGER}, #{mobile,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR},
+      #{password,jdbcType=VARCHAR}, #{profile,jdbcType=VARCHAR}, #{createTime,jdbcType=INTEGER},
       #{delFlag,jdbcType=INTEGER})
   </insert>
-  <insert id="insertSelective" parameterType="com.kowah.habitapp.bean.User" >
+  <insert id="insertAndGetUid" parameterType="com.kowah.habitapp.bean.User" useGeneratedKeys="true" keyProperty="uid">
+    insert into t_user_list
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="uid != null" >
+        uid,
+      </if>
+      <if test="mobile != null" >
+        mobile,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="password != null" >
+        password,
+      </if>
+      <if test="profile != null" >
+        profile,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="delFlag != null" >
+        del_flag,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="uid != null" >
+        #{uid,jdbcType=INTEGER},
+      </if>
+      <if test="mobile != null" >
+        #{mobile,jdbcType=INTEGER},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null" >
+        #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="profile != null" >
+        #{profile,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=INTEGER},
+      </if>
+      <if test="delFlag != null" >
+        #{delFlag,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <insert id="insertSelective" parameterType="com.kowah.habitapp.bean.User">
     insert into t_user_list
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="uid != null" >
@@ -114,4 +163,10 @@
       del_flag = #{delFlag,jdbcType=INTEGER}
     where uid = #{uid,jdbcType=INTEGER}
   </update>
+  <select id="selectByMobile" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select
+    <include refid="Base_Column_List" />
+    from t_user_list
+    where mobile = #{mobile,jdbcType=INTEGER}
+  </select>
 </mapper>

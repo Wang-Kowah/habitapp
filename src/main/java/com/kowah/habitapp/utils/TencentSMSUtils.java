@@ -12,14 +12,14 @@ import java.util.ArrayList;
 public class TencentSMSUtils {
     private static final Logger logger = LoggerFactory.getLogger(TencentSMSUtils.class);
 
-    private static final int APPID = 1400191462;
-    private static final String APPKEY = "94cdb9a0598a0079b6fa518fed24bc64";
+    private static final int APPID = 1400193579;
+    private static final String APPKEY = "8c149f19488f2c328148dfb55c9417fa";
 
     /**
      * 腾讯云短信模板id
      */
     // 欢迎使用习惯APP，您此次的操作验证码是{1},请于{2}分钟内填写。如非本人操作,请忽略本短信。
-    private static final int TENCENT_SMS_VERIFY_CODE_TEMPLATE_ID = 292986;
+    private static final int TENCENT_SMS_VERIFY_CODE_TEMPLATE_ID = 293567;
     // 短信签名
     private static final String TENCENT_SMS_SIGN = "习惯APP";
 

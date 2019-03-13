@@ -5,17 +5,22 @@ import com.kowah.habitapp.utils.EhCacheUtils;
 import com.kowah.habitapp.utils.TencentSMSUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 
 @Service
 public class SendMsgService {
+    private static final Logger logger = LoggerFactory.getLogger(SendMsgService.class);
 
-    private final int CACHE_LIVE_SECONDS = 10 * 60;
+    private final int CACHE_LIVE_SECONDS = 3 * 60;
 
     public ErrorCode sendVerifyCode(String mobile) {
         String code = generateVerificationCode();
+        logger.debug("send verify code {}",code);
+
         ArrayList<String> params = new ArrayList<>();
         params.add(code);
         params.add("" + (CACHE_LIVE_SECONDS / 60));
@@ -34,7 +39,7 @@ public class SendMsgService {
     /**
      * 生成4位验证码
      */
-    private String generateVerificationCode() {
+    public String generateVerificationCode() {
         return RandomStringUtils.random(4, "0123456789");
     }
 

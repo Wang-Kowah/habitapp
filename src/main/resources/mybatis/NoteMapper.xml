@@ -30,7 +30,7 @@
       #{content,jdbcType=VARCHAR}, #{createTime,jdbcType=INTEGER}, #{delFlag,jdbcType=INTEGER}
       )
   </insert>
-  <insert id="insertSelective" parameterType="com.kowah.habitapp.bean.Note" >
+  <insert id="insertSelective" parameterType="com.kowah.habitapp.bean.Note"  useGeneratedKeys="true" keyProperty="id">
     insert into t_note_list
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="id != null" >
