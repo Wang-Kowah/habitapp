@@ -3,6 +3,7 @@ package com.kowah.habitapp.dbmapper;
 import com.kowah.habitapp.bean.Note;
 
 import java.util.List;
+import java.util.Map;
 
 public interface NoteMapper {
     int deleteByPrimaryKey(Integer id);
@@ -17,5 +18,5 @@ public interface NoteMapper {
 
     int updateByPrimaryKey(Note record);
 
-    List<Note> selectByUid(Integer uid);
+    List<Note> selectByUidAndType(Map<String, Object> params);
 }

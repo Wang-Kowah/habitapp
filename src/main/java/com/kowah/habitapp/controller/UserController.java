@@ -84,19 +84,24 @@ public class UserController {
         Map<String, Object> result = new HashMap<>();
         ErrorCode errorCode = ErrorCode.SUCCESS;
         String uidStr = request.getParameter("uid");
+        String typeStr = request.getParameter("type");
 
-        int uid;
+        int uid, type;
         try {
             uid = Integer.parseInt(uidStr);
+            type = Integer.parseInt(typeStr);
         } catch (Exception e) {
             logger.error("", e);
-            errorCode = ErrorCode.USER_IS_NOT_EXIST;
+            errorCode = ErrorCode.PARAM_ERROR;
             result.put("retcode", errorCode.getCode());
             result.put("msg", errorCode.getMsg());
             return result;
         }
 
-        List<Note> notes = noteMapper.selectByUid(uid);
+        Map<String, Object> params = new HashMap<>();
+        params.put("uid", uid);
+        params.put("type", type);
+        List<Note> notes = noteMapper.selectByUidAndType(params);
         result.put("noteList", notes);
         result.put("retcode", errorCode.getCode());
         result.put("msg", errorCode.getMsg());

@@ -103,11 +103,11 @@
       del_flag = #{delFlag,jdbcType=INTEGER}
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <select id="selectByUid" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+  <select id="selectByUidAndType" resultMap="BaseResultMap" >
     select
     <include refid="Base_Column_List" />
     from t_note_list
-    where uid = #{uid,jdbcType=INTEGER}
-    order by create_time
+    where uid = #{uid,jdbcType=INTEGER} and type = #{type,jdbcType=INTEGER}
+    order by create_time desc
   </select>
 </mapper>

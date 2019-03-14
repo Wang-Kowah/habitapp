@@ -28,18 +28,18 @@ public class SendMsgService {
         if (!flag) {
             return ErrorCode.SEND_MSM_ERROR;
         }
-        EhCacheUtils.put(getCachekey(mobile), code, CACHE_LIVE_SECONDS);
+        EhCacheUtils.put(getCacheKey(mobile), code, CACHE_LIVE_SECONDS);
         return ErrorCode.SUCCESS;
     }
 
-    private String getCachekey(String mobile) {
+    private String getCacheKey(String mobile) {
         return "mobile_code_" + mobile;
     }
 
     /**
      * 生成4位验证码
      */
-    public String generateVerificationCode() {
+    private String generateVerificationCode() {
         return RandomStringUtils.random(4, "0123456789");
     }
 
@@ -50,7 +50,7 @@ public class SendMsgService {
         if (StringUtils.isEmpty(mobile) || StringUtils.isEmpty(code)) {
             return false;
         }
-        String codeCache = (String) EhCacheUtils.get(getCachekey(mobile));
+        String codeCache = (String) EhCacheUtils.get(getCacheKey(mobile));
         if (StringUtils.isEmpty(codeCache)) {
             return false;
         }
