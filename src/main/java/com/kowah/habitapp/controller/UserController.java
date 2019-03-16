@@ -164,12 +164,13 @@ public class UserController {
         ErrorCode errorCode = ErrorCode.SUCCESS;
         String mobileStr = request.getParameter("mobile");
         String name = request.getParameter("name");
-        String password = request.getParameter("password");
+//        String password = request.getParameter("password");
+        //去除密码，注册码仅用于登录
 
         int mobile;
         try {
             mobile = Integer.parseInt(mobileStr);
-            if (name.equals("") || password.equals("")) {
+            if (name.equals("") /*|| password.equals("")*/) {
                 throw new Exception();
             }
         } catch (Exception e) {
@@ -190,8 +191,9 @@ public class UserController {
             User user = new User();
             user.setMobile(mobile);
             user.setName(name);
-            user.setPassword(md5(password));
+//            user.setPassword(md5(password));
             user.setCreateTime((int) (System.currentTimeMillis() / 1000));
+            user.setProfile(PROFILE_PIC_LOCATION + File.separator + "default.jpg");
             userMapper.insertAndGetUid(user);
         } catch (Exception e) {
             logger.error("", e);
@@ -214,14 +216,14 @@ public class UserController {
         Map<String, Object> result = new HashMap<>();
         ErrorCode errorCode = ErrorCode.SUCCESS;
         String mobileStr = request.getParameter("mobile");
-        String password = request.getParameter("password");
+//        String password = request.getParameter("password");
 
         int mobile;
         try {
             mobile = Integer.parseInt(mobileStr);
-            if (password.equals("")) {
-                throw new Exception();
-            }
+//            if (password.equals("")) {
+//                throw new Exception();
+//            }
         } catch (Exception e) {
             errorCode = ErrorCode.PARAM_ERROR;
             result.put("retcode", errorCode.getCode());
@@ -237,9 +239,9 @@ public class UserController {
             return result;
         }
 
-        if (!md5(password).equals(user.getPassword())) {
-            errorCode = ErrorCode.LOGIN_FAIL;
-        }
+//        if (!md5(password).equals(user.getPassword())) {
+//            errorCode = ErrorCode.LOGIN_FAIL;
+//        }
 
         if (errorCode.equals(ErrorCode.SUCCESS)) {
             result.put("uid", user.getUid());
@@ -377,8 +379,8 @@ public class UserController {
             User user = userMapper.selectByPrimaryKey(uid);
             String filePath = user.getProfile();
 
-            File file = new File(filePath);
-            if (file.exists()) {
+            if (filePath != null && !filePath.equals("")) {
+                File file = new File(filePath);
                 String suffix = filePath.substring(filePath.lastIndexOf("."));
                 response.setContentType("application/force-download");// 设置强制下载不打开
                 response.addHeader("Content-Disposition", "attachment;fileName=" + uid + suffix);// 设置文件名
@@ -393,7 +395,7 @@ public class UserController {
                 }
             } else {
                 filePath = PROFILE_PIC_LOCATION + File.separator + "default.jpg";
-                file = new File(filePath);
+                File file = new File(filePath);
 
                 String suffix = filePath.substring(filePath.lastIndexOf("."));
                 response.setContentType("application/force-download");// 设置强制下载不打开
@@ -412,6 +414,7 @@ public class UserController {
         } catch (Exception e) {
             logger.error("", e);
             ErrorCode errorCode = ErrorCode.USER_IS_NOT_EXIST;
+            result.put("error",e);
             result.put("retcode", errorCode.getCode());
             result.put("msg", errorCode.getMsg());
             return result;
