@@ -362,13 +362,14 @@ public class UserController {
     @ResponseBody
     public Map<String, Object> getProfilePic(HttpServletRequest request, HttpServletResponse response) {
         Map<String, Object> result = new HashMap<>();
+        ErrorCode errorCode;
         String uidStr = request.getParameter("uid");
 
         int uid;
         try {
             uid = Integer.parseInt(uidStr);
         } catch (Exception e) {
-            ErrorCode errorCode = ErrorCode.PARAM_ERROR;
+            errorCode = ErrorCode.PARAM_ERROR;
             result.put("retcode", errorCode.getCode());
             result.put("msg", errorCode.getMsg());
             return result;
@@ -379,8 +380,8 @@ public class UserController {
             User user = userMapper.selectByPrimaryKey(uid);
             String filePath = user.getProfile();
 
-            if (filePath != null && !filePath.equals("")) {
-                File file = new File(filePath);
+            File file = new File(filePath);
+            if (file.exists()) {
                 String suffix = filePath.substring(filePath.lastIndexOf("."));
                 response.setContentType("application/force-download");// 设置强制下载不打开
                 response.addHeader("Content-Disposition", "attachment;fileName=" + uid + suffix);// 设置文件名
@@ -393,31 +394,13 @@ public class UserController {
                     os.write(buffer, 0, i);
                     i = bis.read(buffer);
                 }
+                return null;
             } else {
-                filePath = PROFILE_PIC_LOCATION + File.separator + "default.jpg";
-                File file = new File(filePath);
-
-                String suffix = filePath.substring(filePath.lastIndexOf("."));
-                response.setContentType("application/force-download");// 设置强制下载不打开
-                response.addHeader("Content-Disposition", "attachment;fileName=default" + suffix);// 设置文件名
-                byte[] buffer = new byte[1024];
-                bis = new BufferedInputStream(new FileInputStream(file));
-
-                OutputStream os = response.getOutputStream();
-                int i = bis.read(buffer);
-                while (i != -1) {
-                    os.write(buffer, 0, i);
-                    i = bis.read(buffer);
-                }
-
+                errorCode = ErrorCode.SYSTEM_ERROR;
             }
         } catch (Exception e) {
             logger.error("", e);
-            ErrorCode errorCode = ErrorCode.USER_IS_NOT_EXIST;
-            result.put("error",e);
-            result.put("retcode", errorCode.getCode());
-            result.put("msg", errorCode.getMsg());
-            return result;
+            errorCode = ErrorCode.USER_IS_NOT_EXIST;
         } finally {
             if (bis != null) {
                 try {
@@ -427,7 +410,9 @@ public class UserController {
                 }
             }
         }
-        return null;
+        result.put("retcode", errorCode.getCode());
+        result.put("msg", errorCode.getMsg());
+        return result;
     }
 
     //TODO 高频词总结接口
