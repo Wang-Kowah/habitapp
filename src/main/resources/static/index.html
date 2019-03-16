@@ -1,10 +1,82 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>欢迎使用习惯APP</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css" integrity="sha384-"
+        crossorigin="anonymous">
+    <link rel="stylesheet" href="css/layouts/side-menu.css">
+    <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.0.js"></script>
 </head>
+
+
 <body>
-    <h1>Hello</h1>
+    <div id="layout">
+        <!-- Menu toggle -->
+        <a href="#menu" id="menuLink" class="menu-link">
+            <!-- Hamburger icon -->
+            <span></span>
+        </a>
+
+        <div id="menu">
+            <div class="pure-menu">
+                <a class="pure-menu-heading" href="#">示范页面</a>
+
+                <ul class="pure-menu-list">
+                    <li class="pure-menu-item"><a href="index.html" class="pure-menu-link">注册</a></li>
+                    <li class="pure-menu-item"><a href="day.html" class="pure-menu-link">每天总结</a></li>
+                    <li class="pure-menu-item"><a href="profile.html" class="pure-menu-link">头像</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="main">
+            <div class="header">
+                <h1>注册</h1>
+            </div>
+
+            <div class="content">
+                <p>
+                    <button id="getcode">发送验证码</button>
+                </p>
+                <form method="POST" id="form" enctype="multipart/form-data" action="user/checkVerifyCode">
+                    <p>
+                        手机号：
+                        <input name="mobile" id="mobile" />
+                    </p>
+                    <p>
+                        验证码：
+                        <input name="code" />
+                    </p>
+                    <p>
+                        <button>提交</button>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/ui.js"></script>
+
+    <script>
+        $(function () {
+            $("#getcode").click(function () {
+            $.ajax({
+                url: "user/getVerifyCode",
+                data: { "mobile": $("#mobile").val() },
+                type: "POST",
+                dataType: "json",
+                success: function (data) { }
+            });
+            });
+        })
+    </script>
 </body>
+
+
+
+
 </html>

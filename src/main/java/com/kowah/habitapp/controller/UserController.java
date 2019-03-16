@@ -241,6 +241,9 @@ public class UserController {
             errorCode = ErrorCode.LOGIN_FAIL;
         }
 
+        if (errorCode.equals(ErrorCode.SUCCESS)) {
+            result.put("uid", user.getUid());
+        }
         result.put("retcode", errorCode.getCode());
         result.put("msg", errorCode.getMsg());
         return result;
@@ -310,7 +313,7 @@ public class UserController {
         try {
             uid = Integer.parseInt(uidStr);
         } catch (Exception e) {
-            errorCode = ErrorCode.USER_IS_NOT_EXIST;
+            errorCode = ErrorCode.PARAM_ERROR;
             result.put("retcode", errorCode.getCode());
             result.put("msg", errorCode.getMsg());
             return result;
@@ -363,7 +366,7 @@ public class UserController {
         try {
             uid = Integer.parseInt(uidStr);
         } catch (Exception e) {
-            ErrorCode errorCode = ErrorCode.USER_IS_NOT_EXIST;
+            ErrorCode errorCode = ErrorCode.PARAM_ERROR;
             result.put("retcode", errorCode.getCode());
             result.put("msg", errorCode.getMsg());
             return result;
@@ -389,7 +392,7 @@ public class UserController {
                     i = bis.read(buffer);
                 }
             } else {
-                filePath = PROFILE_PIC_LOCATION + File.separator + "default.jpeg";
+                filePath = PROFILE_PIC_LOCATION + File.separator + "default.jpg";
                 file = new File(filePath);
 
                 String suffix = filePath.substring(filePath.lastIndexOf("."));
@@ -424,5 +427,5 @@ public class UserController {
         return null;
     }
 
-
+    //TODO 高频词总结接口
 }
