@@ -322,7 +322,9 @@ public class UserController {
         }
 
         if (!pic.isEmpty()) {
-            try {//TODO 文件大小限制
+            try {
+                //TODO 移除旧头像
+                //TODO 文件大小限制
 
                 // 获得文件后缀名判断其类型
                 String fileNameOriginal = pic.getOriginalFilename();
