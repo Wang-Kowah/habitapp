@@ -140,7 +140,7 @@ public class UserController {
             note.setUid(uid);
             note.setType(type);
             note.setContent(msg);
-            note.setCreateTime((int) System.currentTimeMillis());
+            note.setCreateTime((int) (System.currentTimeMillis() / 1000));
             noteMapper.insertSelective(note);
         } catch (Exception e) {
             logger.error("", e);
@@ -191,7 +191,7 @@ public class UserController {
             user.setMobile(mobile);
             user.setName(name);
             user.setPassword(md5(password));
-            user.setCreateTime((int) System.currentTimeMillis());
+            user.setCreateTime((int) (System.currentTimeMillis() / 1000));
             userMapper.insertAndGetUid(user);
         } catch (Exception e) {
             logger.error("", e);
