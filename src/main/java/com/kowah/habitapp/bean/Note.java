@@ -1,5 +1,7 @@
 package com.kowah.habitapp.bean;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class Note {
     private Integer id;
 
@@ -10,7 +12,7 @@ public class Note {
     private String content;
 
     private Integer createTime;
-
+    @JsonIgnore
     private Integer delFlag;
 
     public Integer getId() {

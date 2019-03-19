@@ -1,18 +1,20 @@
 package com.kowah.habitapp.bean;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class User {
     private Integer uid;
 
     private Integer mobile;
 
     private String name;
-
+    @JsonIgnore
     private String password;
-
+    @JsonIgnore
     private String profile;
 
     private Integer createTime;
-
+    @JsonIgnore
     private Integer delFlag;
 
     public Integer getUid() {
