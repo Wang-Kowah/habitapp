@@ -325,6 +325,13 @@ public class UserController {
         if (!pic.isEmpty()) {
             try {// Springboot自带Tomcat上传文件大小限制为1m，无需再做限制
 
+                // 先移除旧头像以免用户上传重复头像导致的错误
+                String oldPath = userMapper.selectByPrimaryKey(uid).getProfile();
+                File oldProfile = new File(oldPath);
+                if (!oldPath.contains("default") && oldProfile.exists()) {
+                    oldProfile.delete();
+                }
+
                 // 获得文件后缀名判断其类型
                 String fileNameOriginal = pic.getOriginalFilename();
                 String mimeType = request.getServletContext().getMimeType(fileNameOriginal);
@@ -337,13 +344,6 @@ public class UserController {
                 out.write(pic.getBytes());
                 out.flush();
                 out.close();
-
-                // 移除旧头像
-                String oldPath = userMapper.selectByPrimaryKey(uid).getProfile();
-                File oldProfile = new File(oldPath);
-                if (!oldPath.contains("default") && oldProfile.exists()) {
-                    oldProfile.delete();
-                }
 
                 // 更新数据库
                 User newUser = new User();
