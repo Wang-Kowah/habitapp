@@ -2,11 +2,13 @@ package com.kowah.habitapp.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-public class DayKeyword {
+public class PeriodKeyword {
     @JsonIgnore
     private Integer id;
     @JsonIgnore
     private Integer uid;
+
+    private Integer type;
 
     private String keywords;
 
@@ -28,6 +30,14 @@ public class DayKeyword {
 
     public void setUid(Integer uid) {
         this.uid = uid;
+    }
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
     }
 
     public String getKeywords() {
