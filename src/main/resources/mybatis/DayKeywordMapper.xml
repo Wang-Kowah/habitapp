@@ -90,4 +90,10 @@
       del_flag = #{delFlag,jdbcType=INTEGER}
     where id = #{id,jdbcType=INTEGER}
   </update>
+  <select id="selectByUID" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select
+    <include refid="Base_Column_List" />
+    from t_keyword_day
+    where uid = #{uid,jdbcType=INTEGER}
+  </select>
 </mapper>

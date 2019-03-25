@@ -3,7 +3,7 @@
 <mapper namespace="com.kowah.habitapp.dbmapper.UserMapper" >
   <resultMap id="BaseResultMap" type="com.kowah.habitapp.bean.User" >
     <id column="uid" property="uid" jdbcType="INTEGER" />
-    <result column="mobile" property="mobile" jdbcType="INTEGER" />
+    <result column="mobile" property="mobile" jdbcType="VARCHAR" />
     <result column="name" property="name" jdbcType="VARCHAR" />
     <result column="password" property="password" jdbcType="VARCHAR" />
     <result column="profile" property="profile" jdbcType="VARCHAR" />
@@ -27,7 +27,7 @@
     insert into t_user_list (uid, mobile, name,
       password, profile, create_time,
       del_flag)
-    values (#{uid,jdbcType=INTEGER}, #{mobile,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR},
+    values (#{uid,jdbcType=INTEGER}, #{mobile,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR},
       #{password,jdbcType=VARCHAR}, #{profile,jdbcType=VARCHAR}, #{createTime,jdbcType=INTEGER},
       #{delFlag,jdbcType=INTEGER})
   </insert>
@@ -61,7 +61,7 @@
         #{uid,jdbcType=INTEGER},
       </if>
       <if test="mobile != null" >
-        #{mobile,jdbcType=INTEGER},
+        #{mobile,jdbcType=VARCHAR},
       </if>
       <if test="name != null" >
         #{name,jdbcType=VARCHAR},
@@ -110,7 +110,7 @@
         #{uid,jdbcType=INTEGER},
       </if>
       <if test="mobile != null" >
-        #{mobile,jdbcType=INTEGER},
+        #{mobile,jdbcType=VARCHAR},
       </if>
       <if test="name != null" >
         #{name,jdbcType=VARCHAR},
@@ -133,7 +133,7 @@
     update t_user_list
     <set >
       <if test="mobile != null" >
-        mobile = #{mobile,jdbcType=INTEGER},
+        mobile = #{mobile,jdbcType=VARCHAR},
       </if>
       <if test="name != null" >
         name = #{name,jdbcType=VARCHAR},
@@ -155,7 +155,7 @@
   </update>
   <update id="updateByPrimaryKey" parameterType="com.kowah.habitapp.bean.User" >
     update t_user_list
-    set mobile = #{mobile,jdbcType=INTEGER},
+    set mobile = #{mobile,jdbcType=VARCHAR},
       name = #{name,jdbcType=VARCHAR},
       password = #{password,jdbcType=VARCHAR},
       profile = #{profile,jdbcType=VARCHAR},
@@ -163,10 +163,10 @@
       del_flag = #{delFlag,jdbcType=INTEGER}
     where uid = #{uid,jdbcType=INTEGER}
   </update>
-  <select id="selectByMobile" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+  <select id="selectByMobile" resultMap="BaseResultMap" parameterType="java.lang.String" >
     select
     <include refid="Base_Column_List" />
     from t_user_list
-    where mobile = #{mobile,jdbcType=INTEGER}
+    where mobile = #{mobile,jdbcType=VARCHAR}
   </select>
 </mapper>

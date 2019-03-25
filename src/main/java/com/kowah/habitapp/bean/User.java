@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class User {
     private Integer uid;
 
-    private Integer mobile;
+    private String mobile;
 
     private String name;
     @JsonIgnore
@@ -25,11 +25,11 @@ public class User {
         this.uid = uid;
     }
 
-    public Integer getMobile() {
+    public String getMobile() {
         return mobile;
     }
 
-    public void setMobile(Integer mobile) {
+    public void setMobile(String mobile) {
         this.mobile = mobile;
     }
 

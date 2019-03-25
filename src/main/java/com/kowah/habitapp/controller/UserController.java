@@ -1,9 +1,13 @@
 package com.kowah.habitapp.controller;
 
+import com.kowah.habitapp.bean.DayKeyword;
 import com.kowah.habitapp.bean.Note;
+import com.kowah.habitapp.bean.PeriodKeyword;
 import com.kowah.habitapp.bean.User;
 import com.kowah.habitapp.bean.enums.ErrorCode;
+import com.kowah.habitapp.dbmapper.DayKeywordMapper;
 import com.kowah.habitapp.dbmapper.NoteMapper;
+import com.kowah.habitapp.dbmapper.PeriodKeywordMapper;
 import com.kowah.habitapp.dbmapper.UserMapper;
 import com.kowah.habitapp.service.SendMsgService;
 import org.slf4j.Logger;
@@ -23,8 +27,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.alibaba.druid.util.Utils.md5;
-
 @Controller
 @RequestMapping(value = "/user")
 public class UserController {
@@ -40,7 +42,11 @@ public class UserController {
     private static final String PROFILE_PIC_LOCATION = "C:" + File.separator + "Data" + File.separator + "pic";
 
     @Autowired
+    private DayKeywordMapper dayKeywordMapper;
+    @Autowired
     private NoteMapper noteMapper;
+    @Autowired
+    private PeriodKeywordMapper periodKeywordMapper;
     @Autowired
     private SendMsgService sendMsgService;
     @Autowired
@@ -163,24 +169,26 @@ public class UserController {
         Map<String, Object> result = new HashMap<>();
         ErrorCode errorCode = ErrorCode.SUCCESS;
         String mobileStr = request.getParameter("mobile");
-        String name = request.getParameter("name");
-//        String password = request.getParameter("password");
+        //用户名后台生成，格式:"用户"+手机号后4位+10位时间戳
+//        String name = request.getParameter("name");
         //去除密码，注册码仅用于登录
+//        String password = request.getParameter("password");
 
-        int mobile;
-        try {
-            mobile = Integer.parseInt(mobileStr);
-            if (name.equals("") /*|| password.equals("")*/) {
-                throw new Exception();
-            }
-        } catch (Exception e) {
+//        long mobile;
+//        try {
+//            mobile = Long.parseLong(mobileStr);
+//            if (name.equals("") || password.equals("")) {
+//                throw new Exception();
+//            }
+//        } catch (Exception e)
+        if (mobileStr.length() != 11) {
             errorCode = ErrorCode.PARAM_ERROR;
             result.put("retcode", errorCode.getCode());
             result.put("msg", errorCode.getMsg());
             return result;
         }
 
-        if (userMapper.selectByMobile(mobile) != null) {
+        if (userMapper.selectByMobile(mobileStr) != null) {
             errorCode = ErrorCode.MOBILE_EXIST_ERROR;
             result.put("retcode", errorCode.getCode());
             result.put("msg", errorCode.getMsg());
@@ -188,12 +196,15 @@ public class UserController {
         }
 
         try {
+            String name = "用户" + mobileStr.substring(7) + System.currentTimeMillis() / 1000;
+
             User user = new User();
-            user.setMobile(mobile);
+            user.setMobile(mobileStr);
             user.setName(name);
 //            user.setPassword(md5(password));
             user.setCreateTime((int) (System.currentTimeMillis() / 1000));
             user.setProfile(PROFILE_PIC_LOCATION + File.separator + "default.jpg");
+            //TODO 未返回uid
             int uid = userMapper.insertAndGetUid(user);
             result.put("uid", uid);
         } catch (Exception e) {
@@ -219,20 +230,21 @@ public class UserController {
         String mobileStr = request.getParameter("mobile");
 //        String password = request.getParameter("password");
 
-        int mobile;
-        try {
-            mobile = Integer.parseInt(mobileStr);
+//        long mobile;
+//        try {
+//            mobile = Long.parseLong(mobileStr);
 //            if (password.equals("")) {
 //                throw new Exception();
 //            }
-        } catch (Exception e) {
+//        } catch (Exception e)
+        if (mobileStr.length() != 11) {
             errorCode = ErrorCode.PARAM_ERROR;
             result.put("retcode", errorCode.getCode());
             result.put("msg", errorCode.getMsg());
             return result;
         }
 
-        User user = userMapper.selectByMobile(mobile);
+        User user = userMapper.selectByMobile(mobileStr);
         if (user == null) {
             errorCode = ErrorCode.USER_IS_NOT_EXIST;
             result.put("retcode", errorCode.getCode());
@@ -269,7 +281,7 @@ public class UserController {
             return result;
         }
 
-        if (userMapper.selectByMobile((int) Long.parseLong(mobile)) != null) {
+        if (userMapper.selectByMobile(mobile) != null) {
             errorCode = ErrorCode.MOBILE_EXIST_ERROR;
             result.put("retcode", errorCode.getCode());
             result.put("msg", errorCode.getMsg());
@@ -423,5 +435,65 @@ public class UserController {
         return result;
     }
 
-    //TODO 高频词总结接口
+    /**
+     * 获取每日关键词记录
+     */
+    @RequestMapping(value = "/dayKeyword", method = RequestMethod.GET)
+    @ResponseBody
+    public Map<String, Object> getDayKeyword(HttpServletRequest request, HttpServletResponse response) {
+        Map<String, Object> result = new HashMap<>();
+        ErrorCode errorCode = ErrorCode.SUCCESS;
+        String uidStr = request.getParameter("uid");
+
+        int uid;
+        try {
+            uid = Integer.parseInt(uidStr);
+        } catch (Exception e) {
+            logger.error("", e);
+            errorCode = ErrorCode.PARAM_ERROR;
+            result.put("retcode", errorCode.getCode());
+            result.put("msg", errorCode.getMsg());
+            return result;
+        }
+
+        List<DayKeyword> dayKeywords = dayKeywordMapper.selectByUID(uid);
+        result.put("dayKeywordList", dayKeywords);
+        result.put("retcode", errorCode.getCode());
+        result.put("msg", errorCode.getMsg());
+        return result;
+    }
+
+    /**
+     * 获取每周/月关键词记录
+     */
+    @RequestMapping(value = "/keyword", method = RequestMethod.GET)
+    @ResponseBody
+    public Map<String, Object> getKeyword(HttpServletRequest request, HttpServletResponse response) {
+        Map<String, Object> result = new HashMap<>();
+        ErrorCode errorCode = ErrorCode.SUCCESS;
+        String uidStr = request.getParameter("uid");
+        String typeStr = request.getParameter("type");
+
+        int uid, type;
+        try {
+            uid = Integer.parseInt(uidStr);
+            type = Integer.parseInt(typeStr);
+        } catch (Exception e) {
+            logger.error("", e);
+            errorCode = ErrorCode.PARAM_ERROR;
+            result.put("retcode", errorCode.getCode());
+            result.put("msg", errorCode.getMsg());
+            return result;
+        }
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("uid", uid);
+        params.put("type", type);
+        List<PeriodKeyword> periodKeywords = periodKeywordMapper.selectByUidAndType(params);
+        result.put("keywordList", periodKeywords);
+        result.put("retcode", errorCode.getCode());
+        result.put("msg", errorCode.getMsg());
+        return result;
+    }
+
 }
