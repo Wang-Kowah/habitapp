@@ -31,7 +31,7 @@
       #{password,jdbcType=VARCHAR}, #{profile,jdbcType=VARCHAR}, #{createTime,jdbcType=INTEGER},
       #{delFlag,jdbcType=INTEGER})
   </insert>
-  <insert id="insertAndGetUid" parameterType="com.kowah.habitapp.bean.User" useGeneratedKeys="true" keyProperty="uid">
+  <insert id="insertAndGetUid" parameterType="com.kowah.habitapp.bean.User" useGeneratedKeys="true" keyProperty="uid" >
     insert into t_user_list
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="uid != null" >
@@ -79,6 +79,9 @@
         #{delFlag,jdbcType=INTEGER},
       </if>
     </trim>
+    <selectKey resultType="java.lang.Integer"  keyProperty="uid" order="AFTER">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
   </insert>
   <insert id="insertSelective" parameterType="com.kowah.habitapp.bean.User">
     insert into t_user_list

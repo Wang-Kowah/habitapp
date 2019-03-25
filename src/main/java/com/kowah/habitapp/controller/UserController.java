@@ -204,9 +204,9 @@ public class UserController {
 //            user.setPassword(md5(password));
             user.setCreateTime((int) (System.currentTimeMillis() / 1000));
             user.setProfile(PROFILE_PIC_LOCATION + File.separator + "default.jpg");
-            //TODO 未返回uid
-            int uid = userMapper.insertAndGetUid(user);
-            result.put("uid", uid);
+            userMapper.insertAndGetUid(user);
+            //xml设置返回自增uid无效，手动获取uid
+            result.put("uid", user.getUid());
         } catch (Exception e) {
             logger.error("", e);
             errorCode = ErrorCode.SYSTEM_ERROR;
