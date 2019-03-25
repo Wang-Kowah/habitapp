@@ -108,6 +108,6 @@
     <include refid="Base_Column_List" />
     from t_keyword_period
     where uid = #{uid,jdbcType=INTEGER} and type = #{type,jdbcType=INTEGER}
-    order by create_time desc
+    order by date desc
   </select>
 </mapper>

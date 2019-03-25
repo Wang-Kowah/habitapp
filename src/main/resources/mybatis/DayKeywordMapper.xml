@@ -95,5 +95,6 @@
     <include refid="Base_Column_List" />
     from t_keyword_day
     where uid = #{uid,jdbcType=INTEGER}
+    order by date desc
   </select>
 </mapper>
