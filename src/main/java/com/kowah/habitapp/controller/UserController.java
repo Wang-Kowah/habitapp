@@ -188,8 +188,10 @@ public class UserController {
             return result;
         }
 
-        if (userMapper.selectByMobile(mobileStr) != null) {
+        User user = userMapper.selectByMobile(mobileStr);
+        if (user != null) {
             errorCode = ErrorCode.MOBILE_EXIST_ERROR;
+            result.put("uid",user.getUid());
             result.put("retcode", errorCode.getCode());
             result.put("msg", errorCode.getMsg());
             return result;
@@ -198,12 +200,12 @@ public class UserController {
         try {
             String name = "用户" + mobileStr.substring(7) + System.currentTimeMillis() / 1000;
 
-            User user = new User();
+            user = new User();
             user.setMobile(mobileStr);
             user.setName(name);
 //            user.setPassword(md5(password));
             user.setCreateTime((int) (System.currentTimeMillis() / 1000));
-            user.setProfile(PROFILE_PIC_LOCATION + File.separator + "default.jpg");
+            user.setProfile(PROFILE_PIC_LOCATION + File.separator + "default.png");
             userMapper.insertAndGetUid(user);
             //xml设置返回自增uid无效，手动获取uid
             result.put("uid", user.getUid());
