@@ -283,12 +283,12 @@ public class UserController {
             return result;
         }
 
-        if (userMapper.selectByMobile(mobile) != null) {
-            errorCode = ErrorCode.MOBILE_EXIST_ERROR;
-            result.put("retcode", errorCode.getCode());
-            result.put("msg", errorCode.getMsg());
-            return result;
-        }
+//        if (userMapper.selectByMobile(mobile) != null) {
+//            errorCode = ErrorCode.MOBILE_EXIST_ERROR;
+//            result.put("retcode", errorCode.getCode());
+//            result.put("msg", errorCode.getMsg());
+//            return result;
+//        }
 
         errorCode = sendMsgService.sendVerifyCode(mobile);
         result.put("retcode", errorCode.getCode());
