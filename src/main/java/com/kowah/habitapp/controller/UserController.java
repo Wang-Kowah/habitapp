@@ -1,5 +1,6 @@
 package com.kowah.habitapp.controller;
 
+import com.github.pagehelper.PageInfo;
 import com.kowah.habitapp.bean.DayKeyword;
 import com.kowah.habitapp.bean.Note;
 import com.kowah.habitapp.bean.PeriodKeyword;
@@ -9,6 +10,7 @@ import com.kowah.habitapp.dbmapper.DayKeywordMapper;
 import com.kowah.habitapp.dbmapper.NoteMapper;
 import com.kowah.habitapp.dbmapper.PeriodKeywordMapper;
 import com.kowah.habitapp.dbmapper.UserMapper;
+import com.kowah.habitapp.service.PageService;
 import com.kowah.habitapp.service.SendMsgService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,9 +35,9 @@ public class UserController {
     private final static Logger logger = LoggerFactory.getLogger(UserController.class);
 
     /**
-     * 默认拉取50条便签
+     * 默认拉取10条便签
      */
-    private static final int DEFUALT_NOTE_HISTORY = 50;
+    private static final int DEFAULT_NOTE_HISTORY = 10;
     /**
      * 用户头像存储地址
      */
@@ -45,6 +47,8 @@ public class UserController {
     private DayKeywordMapper dayKeywordMapper;
     @Autowired
     private NoteMapper noteMapper;
+    @Autowired
+    private PageService pageService;
     @Autowired
     private PeriodKeywordMapper periodKeywordMapper;
     @Autowired
@@ -91,8 +95,10 @@ public class UserController {
         ErrorCode errorCode = ErrorCode.SUCCESS;
         String uidStr = request.getParameter("uid");
         String typeStr = request.getParameter("type");
+        String pageNumStr = request.getParameter("pageNum");
+        String pageSizeStr = request.getParameter("pageSize");
 
-        int uid, type;
+        int uid, type, pageNum, pageSize;
         try {
             uid = Integer.parseInt(uidStr);
             type = Integer.parseInt(typeStr);
@@ -104,10 +110,20 @@ public class UserController {
             return result;
         }
 
+        try {
+            pageNum = Integer.parseInt(pageNumStr);
+            pageSize = Integer.parseInt(pageSizeStr);
+        } catch (Exception e) {
+            pageSize = DEFAULT_NOTE_HISTORY;
+            pageNum = 1;
+        }
+
         Map<String, Object> params = new HashMap<>();
         params.put("uid", uid);
         params.put("type", type);
-        List<Note> notes = noteMapper.selectByUidAndType(params);
+        // 分页
+        PageInfo<Note> notes = pageService.getNoteList(params, pageNum, pageSize);
+
         result.put("noteList", notes);
         result.put("retcode", errorCode.getCode());
         result.put("msg", errorCode.getMsg());
@@ -191,7 +207,7 @@ public class UserController {
         User user = userMapper.selectByMobile(mobileStr);
         if (user != null) {
             errorCode = ErrorCode.MOBILE_EXIST_ERROR;
-            result.put("uid",user.getUid());
+            result.put("uid", user.getUid());
             result.put("retcode", errorCode.getCode());
             result.put("msg", errorCode.getMsg());
             return result;
@@ -446,8 +462,10 @@ public class UserController {
         Map<String, Object> result = new HashMap<>();
         ErrorCode errorCode = ErrorCode.SUCCESS;
         String uidStr = request.getParameter("uid");
+        String pageNumStr = request.getParameter("pageNum");
+        String pageSizeStr = request.getParameter("pageSize");
 
-        int uid;
+        int uid, pageNum, pageSize;
         try {
             uid = Integer.parseInt(uidStr);
         } catch (Exception e) {
@@ -458,7 +476,15 @@ public class UserController {
             return result;
         }
 
-        List<DayKeyword> dayKeywords = dayKeywordMapper.selectByUID(uid);
+        try {
+            pageNum = Integer.parseInt(pageNumStr);
+            pageSize = Integer.parseInt(pageSizeStr);
+        } catch (Exception e) {
+            pageSize = DEFAULT_NOTE_HISTORY;
+            pageNum = 1;
+        }
+
+        PageInfo<DayKeyword> dayKeywords = pageService.getDayKeywordList(uid, pageNum, pageSize);
         result.put("dayKeywordList", dayKeywords);
         result.put("retcode", errorCode.getCode());
         result.put("msg", errorCode.getMsg());
@@ -475,8 +501,10 @@ public class UserController {
         ErrorCode errorCode = ErrorCode.SUCCESS;
         String uidStr = request.getParameter("uid");
         String typeStr = request.getParameter("type");
+        String pageNumStr = request.getParameter("pageNum");
+        String pageSizeStr = request.getParameter("pageSize");
 
-        int uid, type;
+        int uid, type, pageNum, pageSize;
         try {
             uid = Integer.parseInt(uidStr);
             type = Integer.parseInt(typeStr);
@@ -488,10 +516,18 @@ public class UserController {
             return result;
         }
 
+        try {
+            pageNum = Integer.parseInt(pageNumStr);
+            pageSize = Integer.parseInt(pageSizeStr);
+        } catch (Exception e) {
+            pageSize = DEFAULT_NOTE_HISTORY;
+            pageNum = 1;
+        }
+
         Map<String, Object> params = new HashMap<>();
         params.put("uid", uid);
         params.put("type", type);
-        List<PeriodKeyword> periodKeywords = periodKeywordMapper.selectByUidAndType(params);
+        PageInfo<PeriodKeyword> periodKeywords = pageService.getKeywordList(params, pageNum, pageSize);
         result.put("keywordList", periodKeywords);
         result.put("retcode", errorCode.getCode());
         result.put("msg", errorCode.getMsg());

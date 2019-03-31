@@ -14,3 +14,9 @@ spring:
 server:
   servlet:
     context-path: /habit
+
+pagehelper:
+  helper-dialect: mysql
+  reasonable: true
+  support-methods-arguments: true
+  params: count=countSql
