@@ -41,7 +41,10 @@ public class UserController {
     /**
      * 用户头像存储地址
      */
-    private static final String PROFILE_PIC_LOCATION = "C:" + File.separator + "Data" + File.separator + "pic";
+    // NORMAL
+    private static final String PROFILE_PIC_LOCATION = "/data/habit/pic";
+    // TEST
+//    private static final String PROFILE_PIC_LOCATION = "C:" + File.separator + "Data" + File.separator + "pic";
 
     @Autowired
     private DayKeywordMapper dayKeywordMapper;
