@@ -326,6 +326,13 @@ public class UserController {
         String mobile = request.getParameter("mobile");
         String msgCode = request.getParameter("code");
 
+        // iOS上架审核要求白名单
+        if (mobile.equals("15302714670") && msgCode.equals("1234")) {
+            result.put("retcode", errorCode.getCode());
+            result.put("msg", errorCode.getMsg());
+            return result;
+        }
+
         if (!sendMsgService.checkCode(mobile, msgCode)) {
             errorCode = ErrorCode.MSM_CODE_ERROR;
         }
