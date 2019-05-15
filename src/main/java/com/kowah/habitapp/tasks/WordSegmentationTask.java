@@ -19,7 +19,7 @@ public class WordSegmentationTask {
         try {
             String exe = "python";
             String command = "/data/habit/jieba_xiguanAPP_day.py";
-            String[] cmdArr = new String[]{exe, command, "1", "2"};
+            String[] cmdArr = new String[]{exe, command};
             Process process = Runtime.getRuntime().exec(cmdArr);
             DataInputStream dis = new DataInputStream(process.getInputStream());
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(dis));
@@ -36,7 +36,7 @@ public class WordSegmentationTask {
         try {
             String exe = "python";
             String command = "/data/habit/jieba_xiguanAPP_week.py";
-            String[] cmdArr = new String[]{exe, command, "1", "2"};
+            String[] cmdArr = new String[]{exe, command};
             Process process = Runtime.getRuntime().exec(cmdArr);
             DataInputStream dis = new DataInputStream(process.getInputStream());
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(dis));
@@ -53,7 +53,7 @@ public class WordSegmentationTask {
         try {
             String exe = "python";
             String command = "/data/habit/jieba_xiguanAPP_month.py";
-            String[] cmdArr = new String[]{exe, command, "1", "2"};
+            String[] cmdArr = new String[]{exe, command};
             Process process = Runtime.getRuntime().exec(cmdArr);
             DataInputStream dis = new DataInputStream(process.getInputStream());
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(dis));
