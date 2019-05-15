@@ -1,3 +1,4 @@
+#coding=utf-8
 # 天关键词
 import jieba.analyse as analyse
 import pymysql

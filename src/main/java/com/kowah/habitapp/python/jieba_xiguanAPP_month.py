@@ -1,3 +1,4 @@
+#coding=utf-8
 # 月关键词
 import datetime
 
