@@ -19,4 +19,8 @@ public interface NoteMapper {
     int updateByPrimaryKey(Note record);
 
     List<Note> selectByUidAndType(Map<String, Object> params);
+
+    List<String> selectByUidAndTypeAndTime(Map<String, Object> params);
+
+    List<String> selectByUidAndTime(Map<String, Object> params);
 }

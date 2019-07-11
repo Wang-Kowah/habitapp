@@ -110,4 +110,16 @@
     where uid = #{uid,jdbcType=INTEGER} and type = #{type,jdbcType=INTEGER}
     order by create_time desc
   </select>
+  <select id="selectByUidAndTypeAndTime" resultType="java.lang.String" >
+    select content from t_note_list
+    where uid = #{uid,jdbcType=INTEGER} and type = #{type,jdbcType=INTEGER}
+    and create_time between #{start,jdbcType=INTEGER} and #{end,jdbcType=INTEGER}
+    order by create_time desc
+  </select>
+  <select id="selectByUidAndTime" resultType="java.lang.String" >
+    select content from t_note_list
+    where uid = #{uid,jdbcType=INTEGER}
+    and create_time between #{start,jdbcType=INTEGER} and #{end,jdbcType=INTEGER}
+    order by create_time desc
+  </select>
 </mapper>

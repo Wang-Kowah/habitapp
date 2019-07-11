@@ -2,6 +2,8 @@ package com.kowah.habitapp.dbmapper;
 
 import com.kowah.habitapp.bean.User;
 
+import java.util.List;
+
 public interface UserMapper {
     int deleteByPrimaryKey(Integer uid);
 
@@ -18,4 +20,6 @@ public interface UserMapper {
     int updateByPrimaryKey(User record);
 
     User selectByMobile(String mobile);
+
+    List<Integer> getUidList();
 }
