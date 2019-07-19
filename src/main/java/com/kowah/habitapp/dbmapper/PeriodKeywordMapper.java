@@ -19,4 +19,6 @@ public interface PeriodKeywordMapper {
     int updateByPrimaryKey(PeriodKeyword record);
 
     List<PeriodKeyword> selectByUidAndType(Map<String, Object> params);
+
+    List<PeriodKeyword> searchByUidAndTypeAndKey(Map<String, Object> params);
 }

@@ -23,4 +23,6 @@ public interface NoteMapper {
     List<String> selectByUidAndTypeAndTime(Map<String, Object> params);
 
     List<String> selectByUidAndTime(Map<String, Object> params);
+
+    List<Note> searchByUidAndTypeAndKey(Map<String, Object> params);
 }

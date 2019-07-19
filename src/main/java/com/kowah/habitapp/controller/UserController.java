@@ -12,6 +12,7 @@ import com.kowah.habitapp.dbmapper.PeriodKeywordMapper;
 import com.kowah.habitapp.dbmapper.UserMapper;
 import com.kowah.habitapp.service.PageService;
 import com.kowah.habitapp.service.SendMsgService;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -544,4 +545,51 @@ public class UserController {
         return result;
     }
 
+    /**
+     * 搜索历史便签/关键词
+     */
+    @RequestMapping(value = "/search", method = RequestMethod.POST)
+    @ResponseBody
+    public Map<String, Object> search(HttpServletRequest request, HttpServletResponse response) {
+        Map<String, Object> result = new HashMap<>();
+        ErrorCode errorCode = ErrorCode.SUCCESS;
+        String uidStr = request.getParameter("uid");
+        //type 0:每日总结/1:每周总结/2:日关键词/3:周关键词/4:月关键词
+        String typeStr = request.getParameter("type");
+        String key = request.getParameter("key");
+        String pageNumStr = request.getParameter("pageNum");
+        String pageSizeStr = request.getParameter("pageSize");
+
+        int uid, type, pageNum, pageSize;
+        try {
+            uid = Integer.parseInt(uidStr);
+            type = Integer.parseInt(typeStr);
+            if (StringUtils.isEmpty(key) || StringUtils.isBlank(key)) {
+                throw new Exception();
+            }
+        } catch (Exception e) {
+            logger.error("", e);
+            errorCode = ErrorCode.PARAM_ERROR;
+            result.put("retcode", errorCode.getCode());
+            result.put("msg", errorCode.getMsg());
+            return result;
+        }
+
+        try {
+            pageNum = Integer.parseInt(pageNumStr);
+            pageSize = Integer.parseInt(pageSizeStr);
+        } catch (Exception e) {
+            pageSize = DEFAULT_NOTE_HISTORY;
+            pageNum = 1;
+        }
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("uid", uid);
+        params.put("key", '%' + key + '%');
+        PageInfo searchResult = pageService.search(params, pageNum, pageSize, type);
+        result.put("result", searchResult);
+        result.put("retcode", errorCode.getCode());
+        result.put("msg", errorCode.getMsg());
+        return result;
+    }
 }

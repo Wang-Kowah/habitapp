@@ -110,4 +110,10 @@
     where uid = #{uid,jdbcType=INTEGER} and type = #{type,jdbcType=INTEGER}
     order by date desc
   </select>
+  <select id="searchByUidAndTypeAndKey" resultMap="BaseResultMap" >
+    select * from t_keyword_period
+    where uid = #{uid,jdbcType=INTEGER} and type = #{type,jdbcType=INTEGER}
+    and keywords like #{key,jdbcType=VARCHAR}
+    order by date desc
+  </select>
 </mapper>

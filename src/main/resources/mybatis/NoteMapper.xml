@@ -122,4 +122,10 @@
     and create_time between #{start,jdbcType=INTEGER} and #{end,jdbcType=INTEGER}
     order by create_time desc
   </select>
+  <select id="searchByUidAndTypeAndKey" resultMap="BaseResultMap" >
+    select * from t_note_list
+    where uid = #{uid,jdbcType=INTEGER} and type = #{type,jdbcType=INTEGER}
+    and content like #{key,jdbcType=VARCHAR}
+    order by create_time desc
+  </select>
 </mapper>

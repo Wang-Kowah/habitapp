@@ -11,6 +11,7 @@ import com.kowah.habitapp.dbmapper.PeriodKeywordMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -46,4 +47,27 @@ public class PageServiceImpl implements PageService {
         return new PageInfo<>(periodKeywords);
     }
 
+    @Override
+    public PageInfo search(Map<String, Object> params, int pageNum, int pageSize, int type) {
+        List result = new ArrayList();
+        switch (type) {
+            case 0:
+            case 1:
+                params.put("type", type);
+                PageHelper.startPage(pageNum, pageSize);
+                result = noteMapper.searchByUidAndTypeAndKey(params);
+                break;
+            case 2:
+                PageHelper.startPage(pageNum, pageSize);
+                result = dayKeywordMapper.searchByUidAndKey(params);
+                break;
+            case 3:
+            case 4:
+                params.put("type", type - 2);
+                PageHelper.startPage(pageNum, pageSize);
+                result = periodKeywordMapper.searchByUidAndTypeAndKey(params);
+                break;
+        }
+        return new PageInfo<>(result);
+    }
 }

@@ -97,4 +97,10 @@
     where uid = #{uid,jdbcType=INTEGER}
     order by date desc
   </select>
+  <select id="searchByUidAndKey" resultMap="BaseResultMap" >
+    select * from t_keyword_day
+    where uid = #{uid,jdbcType=INTEGER}
+    and keywords like #{key,jdbcType=VARCHAR}
+    order by date desc
+  </select>
 </mapper>
