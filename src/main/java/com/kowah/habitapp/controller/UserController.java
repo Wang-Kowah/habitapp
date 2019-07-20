@@ -44,8 +44,10 @@ public class UserController {
      */
     // NORMAL
     private static final String PROFILE_PIC_LOCATION = "/data/habit/pic";
+    private static final String NOTE_PIC_LOCATION = "/data/habit/pic/note";
     // TEST
 //    private static final String PROFILE_PIC_LOCATION = "C:" + File.separator + "Data" + File.separator + "pic";
+//    private static final String NOTE_PIC_LOCATION = "F:" + File.separator + "Data" + File.separator + "pic" + File.separator + "note";
 
     @Autowired
     private DayKeywordMapper dayKeywordMapper;
@@ -364,7 +366,7 @@ public class UserController {
         }
 
         if (!pic.isEmpty()) {
-            try {// Springboot自带Tomcat上传文件大小限制为1m，无需再做限制
+            try {// 上传文件大小限制设置为10M
 
                 // 先移除旧头像以免用户上传重复头像导致的错误
                 String oldPath = userMapper.selectByPrimaryKey(uid).getProfile();
@@ -392,11 +394,11 @@ public class UserController {
                 newUser.setProfile(filePath);
                 userMapper.updateByPrimaryKeySelective(newUser);
             } catch (Exception e) {
-                errorCode = ErrorCode.UPLOAD_PROFILE_PIC_ERROR;
+                errorCode = ErrorCode.UPLOAD_PIC_ERROR;
                 logger.error("Upload error", e);
             }
         } else {
-            errorCode = ErrorCode.UPLOAD_PROFILE_PIC_ERROR;
+            errorCode = ErrorCode.UPLOAD_PIC_ERROR;
         }
 
         result.put("retcode", errorCode.getCode());
@@ -546,7 +548,7 @@ public class UserController {
     }
 
     /**
-     * 搜索历史便签/关键词
+     * 搜索每日总结
      */
     @RequestMapping(value = "/search", method = RequestMethod.POST)
     @ResponseBody
@@ -563,7 +565,6 @@ public class UserController {
         int uid, type, pageNum, pageSize;
         try {
             uid = Integer.parseInt(uidStr);
-            type = Integer.parseInt(typeStr);
             if (StringUtils.isEmpty(key) || StringUtils.isBlank(key)) {
                 throw new Exception();
             }
@@ -576,11 +577,13 @@ public class UserController {
         }
 
         try {
+            type = Integer.parseInt(typeStr);
             pageNum = Integer.parseInt(pageNumStr);
             pageSize = Integer.parseInt(pageSizeStr);
         } catch (Exception e) {
-            pageSize = DEFAULT_NOTE_HISTORY;
+            type = 0;
             pageNum = 1;
+            pageSize = DEFAULT_NOTE_HISTORY;
         }
 
         Map<String, Object> params = new HashMap<>();
@@ -588,6 +591,128 @@ public class UserController {
         params.put("key", '%' + key + '%');
         PageInfo searchResult = pageService.search(params, pageNum, pageSize, type);
         result.put("result", searchResult);
+        result.put("retcode", errorCode.getCode());
+        result.put("msg", errorCode.getMsg());
+        return result;
+    }
+
+    /**
+     * 发送图片便签
+     */
+    @RequestMapping(value = "/sendPic", method = RequestMethod.POST)
+    @ResponseBody
+    public Map<String, Object> sendPic(HttpServletRequest request, @RequestParam("pic") MultipartFile pic) {
+        Map<String, Object> result = new HashMap<>();
+        ErrorCode errorCode = ErrorCode.SUCCESS;
+        String uidStr = request.getParameter("uid");
+        String typeStr = request.getParameter("type");
+
+        int uid, type;
+        try {
+            uid = Integer.parseInt(uidStr);
+            type = Integer.parseInt(typeStr);
+        } catch (Exception e) {
+            logger.error("", e);
+            errorCode = ErrorCode.USER_IS_NOT_EXIST;
+            result.put("retcode", errorCode.getCode());
+            result.put("msg", errorCode.getMsg());
+            return result;
+        }
+
+        if (!pic.isEmpty()) {
+            try {// 上传文件大小限制设置为10M
+
+                // 获得文件后缀名判断其类型
+                String fileNameOriginal = pic.getOriginalFilename();
+                String mimeType = request.getServletContext().getMimeType(fileNameOriginal);
+                if (!mimeType.startsWith("image/")) {
+                    throw new Exception();
+                }
+                long now = System.currentTimeMillis();
+                String suffix = fileNameOriginal.substring(pic.getOriginalFilename().lastIndexOf("."));
+                String fileDir = NOTE_PIC_LOCATION + File.separator + uidStr;
+                File dir = new File(fileDir);
+                if (!dir.exists()) {
+                    dir.mkdirs();
+                }
+                String filePath = fileDir + File.separator + now + suffix;
+                BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(new File(filePath)));
+                out.write(pic.getBytes());
+                out.flush();
+                out.close();
+
+                // 更新数据库
+                Note note = new Note();
+                note.setUid(uid);
+                note.setType(type);
+                note.setContent("_PIC:" + uidStr + File.separator + now + suffix);
+                note.setCreateTime((int) (now / 1000));
+                noteMapper.insertSelective(note);
+            } catch (Exception e) {
+                errorCode = ErrorCode.UPLOAD_PIC_ERROR;
+                logger.error("Upload error", e);
+            }
+        } else {
+            errorCode = ErrorCode.UPLOAD_PIC_ERROR;
+        }
+
+        result.put("retcode", errorCode.getCode());
+        result.put("msg", errorCode.getMsg());
+        return result;
+    }
+
+    /**
+     * 获取图片便签
+     */
+    @RequestMapping(value = "/pic", method = RequestMethod.GET)
+    @ResponseBody
+    public Map<String, Object> sendPic(HttpServletRequest request, HttpServletResponse response) {
+        Map<String, Object> result = new HashMap<>();
+        ErrorCode errorCode = ErrorCode.SUCCESS;
+        String picName = request.getParameter("picName");
+
+        if (StringUtils.isEmpty(picName) || StringUtils.isBlank(picName) || !picName.startsWith("_PIC:")) {
+            errorCode = ErrorCode.PARAM_ERROR;
+            result.put("retcode", errorCode.getCode());
+            result.put("msg", errorCode.getMsg());
+            return result;
+        }
+
+        BufferedInputStream bis = null;
+        try {
+            String filePath = NOTE_PIC_LOCATION + File.separator + picName.substring(5);
+
+            File file = new File(filePath);
+            if (file.exists()) {
+                String suffix = filePath.substring(filePath.lastIndexOf("."));
+                response.setContentType("application/force-download");// 设置强制下载不打开
+                response.addHeader("Content-Disposition", "attachment;fileName=" + picName);// 设置文件名
+                byte[] buffer = new byte[1024];
+                bis = new BufferedInputStream(new FileInputStream(file));
+
+                OutputStream os = response.getOutputStream();
+                int i = bis.read(buffer);
+                while (i != -1) {
+                    os.write(buffer, 0, i);
+                    i = bis.read(buffer);
+                }
+                return null;
+            } else {
+                errorCode = ErrorCode.SYSTEM_ERROR;
+            }
+        } catch (Exception e) {
+            logger.error("", e);
+            errorCode = ErrorCode.USER_IS_NOT_EXIST;
+        } finally {
+            if (bis != null) {
+                try {
+                    bis.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
         result.put("retcode", errorCode.getCode());
         result.put("msg", errorCode.getMsg());
         return result;

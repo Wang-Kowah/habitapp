@@ -28,6 +28,10 @@ spring:
       test-on-return: false
       min-evictable-idle-time-millis: 300000
       time-between-connect-error-millis: 60000
+  servlet:
+    multipart:
+      # 上传文件大小限制
+      max-file-size: 10MB
 
 # 该配置节点为独立的节点，放在spring的节点下会导致配置无法被识别
 mybatis:

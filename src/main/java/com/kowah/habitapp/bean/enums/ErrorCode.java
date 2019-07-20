@@ -22,7 +22,7 @@ public enum ErrorCode {
 
     // 用户相关错误码6000
     USER_IS_NOT_EXIST(6001, "用户不存在"),
-    UPLOAD_PROFILE_PIC_ERROR(6002,"上传头像失败，请稍后再试！");
+    UPLOAD_PIC_ERROR(6002,"上传图片失败，请稍后再试！");
 
     private int code;
     private String msg;
