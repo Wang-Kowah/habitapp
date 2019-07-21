@@ -2,6 +2,8 @@ package com.kowah.habitapp.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import java.math.BigDecimal;
+
 public class Note {
     private Integer id;
 
@@ -10,6 +12,10 @@ public class Note {
     private Integer type;
 
     private String content;
+
+    private BigDecimal lat;
+
+    private BigDecimal lng;
 
     private Integer createTime;
     @JsonIgnore
@@ -45,6 +51,22 @@ public class Note {
 
     public void setContent(String content) {
         this.content = content == null ? null : content.trim();
+    }
+
+    public BigDecimal getLat() {
+        return lat;
+    }
+
+    public void setLat(BigDecimal lat) {
+        this.lat = lat;
+    }
+
+    public BigDecimal getLng() {
+        return lng;
+    }
+
+    public void setLng(BigDecimal lng) {
+        this.lng = lng;
     }
 
     public Integer getCreateTime() {

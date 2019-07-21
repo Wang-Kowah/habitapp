@@ -26,8 +26,8 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.math.BigDecimal;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -146,6 +146,8 @@ public class UserController {
         ErrorCode errorCode = ErrorCode.SUCCESS;
         String uidStr = request.getParameter("uid");
         String typeStr = request.getParameter("type");
+        String latStr = request.getParameter("lat");
+        String lngStr = request.getParameter("lng");
         String msg = request.getParameter("msg");
 
         int uid, type;
@@ -169,6 +171,13 @@ public class UserController {
             note.setType(type);
             note.setContent(msg);
             note.setCreateTime((int) (System.currentTimeMillis() / 1000));
+            try {
+                BigDecimal lat = new BigDecimal(latStr);
+                BigDecimal lng = new BigDecimal(lngStr);
+                note.setLat(lat);
+                note.setLng(lng);
+            } catch (Exception ignored) {
+            }
             noteMapper.insertSelective(note);
         } catch (Exception e) {
             logger.error("", e);
@@ -606,6 +615,8 @@ public class UserController {
         ErrorCode errorCode = ErrorCode.SUCCESS;
         String uidStr = request.getParameter("uid");
         String typeStr = request.getParameter("type");
+        String latStr = request.getParameter("lat");
+        String lngStr = request.getParameter("lng");
 
         int uid, type;
         try {
@@ -647,6 +658,13 @@ public class UserController {
                 note.setType(type);
                 note.setContent("_PIC:" + uidStr + File.separator + now + suffix);
                 note.setCreateTime((int) (now / 1000));
+                try {
+                    BigDecimal lat = new BigDecimal(latStr);
+                    BigDecimal lng = new BigDecimal(lngStr);
+                    note.setLat(lat);
+                    note.setLng(lng);
+                } catch (Exception ignored) {
+                }
                 noteMapper.insertSelective(note);
             } catch (Exception e) {
                 errorCode = ErrorCode.UPLOAD_PIC_ERROR;
@@ -668,7 +686,7 @@ public class UserController {
     @ResponseBody
     public Map<String, Object> sendPic(HttpServletRequest request, HttpServletResponse response) {
         Map<String, Object> result = new HashMap<>();
-        ErrorCode errorCode = ErrorCode.SUCCESS;
+        ErrorCode errorCode;
         String picName = request.getParameter("picName");
 
         if (StringUtils.isEmpty(picName) || StringUtils.isBlank(picName) || !picName.startsWith("_PIC:")) {
@@ -684,7 +702,6 @@ public class UserController {
 
             File file = new File(filePath);
             if (file.exists()) {
-                String suffix = filePath.substring(filePath.lastIndexOf("."));
                 response.setContentType("application/force-download");// 设置强制下载不打开
                 response.addHeader("Content-Disposition", "attachment;fileName=" + picName);// 设置文件名
                 byte[] buffer = new byte[1024];
@@ -717,4 +734,5 @@ public class UserController {
         result.put("msg", errorCode.getMsg());
         return result;
     }
+
 }
