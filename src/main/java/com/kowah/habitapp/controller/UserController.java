@@ -566,12 +566,12 @@ public class UserController {
         ErrorCode errorCode = ErrorCode.SUCCESS;
         String uidStr = request.getParameter("uid");
         //type 0:每日总结/1:每周总结/2:日关键词/3:周关键词/4:月关键词
-        String typeStr = request.getParameter("type");
+//        String typeStr = request.getParameter("type");
         String key = request.getParameter("key");
         String pageNumStr = request.getParameter("pageNum");
         String pageSizeStr = request.getParameter("pageSize");
 
-        int uid, type, pageNum, pageSize;
+        int uid, type = 0, pageNum, pageSize;
         try {
             uid = Integer.parseInt(uidStr);
             if (StringUtils.isEmpty(key) || StringUtils.isBlank(key)) {
@@ -586,11 +586,11 @@ public class UserController {
         }
 
         try {
-            type = Integer.parseInt(typeStr);
+//            type = Integer.parseInt(typeStr);
             pageNum = Integer.parseInt(pageNumStr);
             pageSize = Integer.parseInt(pageSizeStr);
         } catch (Exception e) {
-            type = 0;
+//            type = 0;
             pageNum = 1;
             pageSize = DEFAULT_NOTE_HISTORY;
         }
@@ -684,7 +684,7 @@ public class UserController {
      */
     @RequestMapping(value = "/pic", method = RequestMethod.GET)
     @ResponseBody
-    public Map<String, Object> sendPic(HttpServletRequest request, HttpServletResponse response) {
+    public Map<String, Object> getPic(HttpServletRequest request, HttpServletResponse response) {
         Map<String, Object> result = new HashMap<>();
         ErrorCode errorCode;
         String picName = request.getParameter("picName");
