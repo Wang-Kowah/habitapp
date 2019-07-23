@@ -22,4 +22,6 @@ public interface UserMapper {
     User selectByMobile(String mobile);
 
     List<Integer> getUidList();
+
+    int getTotalUserNum(Integer lastWeekEnd);
 }

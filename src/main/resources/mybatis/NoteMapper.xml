@@ -1,30 +1,34 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.kowah.habitapp.dbmapper.NoteMapper" >
-  <resultMap id="BaseResultMap" type="com.kowah.habitapp.bean.Note" >
-    <id column="id" property="id" jdbcType="INTEGER" />
-    <result column="uid" property="uid" jdbcType="INTEGER" />
-    <result column="type" property="type" jdbcType="INTEGER" />
-    <result column="content" property="content" jdbcType="VARCHAR" />
-    <result column="lat" property="lat" jdbcType="DECIMAL" />
-    <result column="lng" property="lng" jdbcType="DECIMAL" />
-    <result column="create_time" property="createTime" jdbcType="INTEGER" />
-    <result column="del_flag" property="delFlag" jdbcType="INTEGER" />
-  </resultMap>
-  <sql id="Base_Column_List" >
+<mapper namespace="com.kowah.habitapp.dbmapper.NoteMapper">
+    <resultMap id="BaseResultMap" type="com.kowah.habitapp.bean.Note">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="uid" property="uid" jdbcType="INTEGER"/>
+        <result column="type" property="type" jdbcType="INTEGER"/>
+        <result column="content" property="content" jdbcType="VARCHAR"/>
+        <result column="lat" property="lat" jdbcType="DECIMAL"/>
+        <result column="lng" property="lng" jdbcType="DECIMAL"/>
+        <result column="create_time" property="createTime" jdbcType="INTEGER"/>
+        <result column="del_flag" property="delFlag" jdbcType="INTEGER"/>
+    </resultMap>
+    <resultMap id="UserStatisticMap" type="com.kowah.habitapp.bean.vo.UserStatisticVo">
+        <id column="uid" property="uid" jdbcType="INTEGER"/>
+        <result column="count" property="count" jdbcType="INTEGER"/>
+    </resultMap>
+    <sql id="Base_Column_List">
     id, uid, type, content, lat, lng, create_time, del_flag
   </sql>
-  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
-    select 
-    <include refid="Base_Column_List" />
-    from t_note_list
-    where id = #{id,jdbcType=INTEGER}
-  </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+        select
+        <include refid="Base_Column_List"/>
+        from t_note_list
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from t_note_list
     where id = #{id,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" parameterType="com.kowah.habitapp.bean.Note" >
+    <insert id="insert" parameterType="com.kowah.habitapp.bean.Note">
     insert into t_note_list (id, uid, type, 
       content, lat, lng, 
       create_time, del_flag)
@@ -32,89 +36,89 @@
       #{content,jdbcType=VARCHAR}, #{lat,jdbcType=DECIMAL}, #{lng,jdbcType=DECIMAL}, 
       #{createTime,jdbcType=INTEGER}, #{delFlag,jdbcType=INTEGER})
   </insert>
-  <insert id="insertSelective" parameterType="com.kowah.habitapp.bean.Note" >
-    insert into t_note_list
-    <trim prefix="(" suffix=")" suffixOverrides="," >
-      <if test="id != null" >
-        id,
-      </if>
-      <if test="uid != null" >
-        uid,
-      </if>
-      <if test="type != null" >
-        type,
-      </if>
-      <if test="content != null" >
-        content,
-      </if>
-      <if test="lat != null" >
-        lat,
-      </if>
-      <if test="lng != null" >
-        lng,
-      </if>
-      <if test="createTime != null" >
-        create_time,
-      </if>
-      <if test="delFlag != null" >
-        del_flag,
-      </if>
-    </trim>
-    <trim prefix="values (" suffix=")" suffixOverrides="," >
-      <if test="id != null" >
-        #{id,jdbcType=INTEGER},
-      </if>
-      <if test="uid != null" >
-        #{uid,jdbcType=INTEGER},
-      </if>
-      <if test="type != null" >
-        #{type,jdbcType=INTEGER},
-      </if>
-      <if test="content != null" >
-        #{content,jdbcType=VARCHAR},
-      </if>
-      <if test="lat != null" >
-        #{lat,jdbcType=DECIMAL},
-      </if>
-      <if test="lng != null" >
-        #{lng,jdbcType=DECIMAL},
-      </if>
-      <if test="createTime != null" >
-        #{createTime,jdbcType=INTEGER},
-      </if>
-      <if test="delFlag != null" >
-        #{delFlag,jdbcType=INTEGER},
-      </if>
-    </trim>
-  </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.kowah.habitapp.bean.Note" >
-    update t_note_list
-    <set >
-      <if test="uid != null" >
-        uid = #{uid,jdbcType=INTEGER},
-      </if>
-      <if test="type != null" >
-        type = #{type,jdbcType=INTEGER},
-      </if>
-      <if test="content != null" >
-        content = #{content,jdbcType=VARCHAR},
-      </if>
-      <if test="lat != null" >
-        lat = #{lat,jdbcType=DECIMAL},
-      </if>
-      <if test="lng != null" >
-        lng = #{lng,jdbcType=DECIMAL},
-      </if>
-      <if test="createTime != null" >
-        create_time = #{createTime,jdbcType=INTEGER},
-      </if>
-      <if test="delFlag != null" >
-        del_flag = #{delFlag,jdbcType=INTEGER},
-      </if>
-    </set>
-    where id = #{id,jdbcType=INTEGER}
-  </update>
-  <update id="updateByPrimaryKey" parameterType="com.kowah.habitapp.bean.Note" >
+    <insert id="insertSelective" parameterType="com.kowah.habitapp.bean.Note">
+        insert into t_note_list
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="uid != null">
+                uid,
+            </if>
+            <if test="type != null">
+                type,
+            </if>
+            <if test="content != null">
+                content,
+            </if>
+            <if test="lat != null">
+                lat,
+            </if>
+            <if test="lng != null">
+                lng,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="delFlag != null">
+                del_flag,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="uid != null">
+                #{uid,jdbcType=INTEGER},
+            </if>
+            <if test="type != null">
+                #{type,jdbcType=INTEGER},
+            </if>
+            <if test="content != null">
+                #{content,jdbcType=VARCHAR},
+            </if>
+            <if test="lat != null">
+                #{lat,jdbcType=DECIMAL},
+            </if>
+            <if test="lng != null">
+                #{lng,jdbcType=DECIMAL},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=INTEGER},
+            </if>
+            <if test="delFlag != null">
+                #{delFlag,jdbcType=INTEGER},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.kowah.habitapp.bean.Note">
+        update t_note_list
+        <set>
+            <if test="uid != null">
+                uid = #{uid,jdbcType=INTEGER},
+            </if>
+            <if test="type != null">
+                type = #{type,jdbcType=INTEGER},
+            </if>
+            <if test="content != null">
+                content = #{content,jdbcType=VARCHAR},
+            </if>
+            <if test="lat != null">
+                lat = #{lat,jdbcType=DECIMAL},
+            </if>
+            <if test="lng != null">
+                lng = #{lng,jdbcType=DECIMAL},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=INTEGER},
+            </if>
+            <if test="delFlag != null">
+                del_flag = #{delFlag,jdbcType=INTEGER},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.kowah.habitapp.bean.Note">
     update t_note_list
     set uid = #{uid,jdbcType=INTEGER},
       type = #{type,jdbcType=INTEGER},
@@ -125,29 +129,34 @@
       del_flag = #{delFlag,jdbcType=INTEGER}
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <select id="selectByUidAndType" resultMap="BaseResultMap" >
-    select
-    <include refid="Base_Column_List" />
-    from t_note_list
-    where uid = #{uid,jdbcType=INTEGER} and type = #{type,jdbcType=INTEGER}
-    order by create_time desc
-  </select>
-  <select id="selectByUidAndTypeAndTime" resultType="java.lang.String" >
+    <select id="selectByUidAndType" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_note_list
+        where uid = #{uid,jdbcType=INTEGER} and type = #{type,jdbcType=INTEGER}
+        order by create_time desc
+    </select>
+    <select id="selectByUidAndTypeAndTime" resultType="java.lang.String">
     select content from t_note_list
     where uid = #{uid,jdbcType=INTEGER} and type = #{type,jdbcType=INTEGER}
     and create_time between #{start,jdbcType=INTEGER} and #{end,jdbcType=INTEGER}
     order by create_time desc
   </select>
-  <select id="selectByUidAndTime" resultType="java.lang.String" >
+    <select id="selectByUidAndTime" resultType="java.lang.String">
     select content from t_note_list
     where uid = #{uid,jdbcType=INTEGER}
     and create_time between #{start,jdbcType=INTEGER} and #{end,jdbcType=INTEGER}
     order by create_time desc
   </select>
-  <select id="searchByUidAndTypeAndKey" resultMap="BaseResultMap" >
+    <select id="searchByUidAndTypeAndKey" resultMap="BaseResultMap">
     select * from t_note_list
     where uid = #{uid,jdbcType=INTEGER} and type = #{type,jdbcType=INTEGER}
     and content like #{key,jdbcType=VARCHAR}
     order by create_time desc
+  </select>
+    <select id="getActiveUserNum" resultMap="UserStatisticMap">
+    select uid,count(uid) as count from t_note_list
+    where create_time between #{lastWeekStart,jdbcType=INTEGER} and #{lastWeekEnd,jdbcType=INTEGER}
+    group by uid order by count desc;
   </select>
 </mapper>

@@ -175,4 +175,8 @@
   <select id="getUidList" resultType="java.lang.Integer" >
     select uid from t_user_list where del_flag = 0
   </select>
+  <select id="getTotalUserNum" resultType="java.lang.Integer" >
+    select count(uid) as num from t_user_list
+    where create_time &lt; #{lastWeekEnd,jdbcType=INTEGER}
+  </select>
 </mapper>

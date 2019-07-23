@@ -1,6 +1,7 @@
 package com.kowah.habitapp.dbmapper;
 
 import com.kowah.habitapp.bean.Note;
+import com.kowah.habitapp.bean.vo.UserStatisticVo;
 
 import java.util.List;
 import java.util.Map;
@@ -25,4 +26,6 @@ public interface NoteMapper {
     List<String> selectByUidAndTime(Map<String, Object> params);
 
     List<Note> searchByUidAndTypeAndKey(Map<String, Object> params);
+
+    List<UserStatisticVo> getActiveUserNum(Integer lastWeekStart, Integer lastWeekEnd);
 }
