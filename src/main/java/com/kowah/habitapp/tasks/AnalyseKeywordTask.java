@@ -32,7 +32,8 @@ public class AnalyseKeywordTask {
     private UserMapper userMapper;
 
 
-    @Scheduled(cron = "0 0 0 * * ?") // 每天00:00:00调度
+    //    @Scheduled(cron = "0 0 0 * * ?") // 每天00:00:00调度
+    @Scheduled(cron = "* * * * * ?")
     public void analyseKeyword() {
         try {
             long now = System.currentTimeMillis();
@@ -48,6 +49,8 @@ public class AnalyseKeywordTask {
                 params.put("start", DateUtil.getDayBeginTimestamp(now, 1) / 1000);
                 params.put("end", DateUtil.getDayBeginTimestamp(now, 0) / 1000 - 1);
                 List<String> noteList = noteMapper.selectByUidAndTypeAndTime(params);
+                // 去除图片
+                noteList.removeIf(s -> s.startsWith("_PIC:"));
                 if (!noteList.isEmpty()) {
                     List<String> keywordList = JiebaUtil.getKeyword(String.join(".", noteList), 5);
                     DayKeyword dayKeyword = new DayKeyword();
@@ -62,6 +65,8 @@ public class AnalyseKeywordTask {
                     params.put("start", DateUtil.getMondayBeginTimestamp(now, 1) / 1000);
                     params.put("end", DateUtil.getMondayBeginTimestamp(now, 0) / 1000 - 1);
                     noteList = noteMapper.selectByUidAndTime(params);
+                    // 去除图片
+                    noteList.removeIf(s -> s.startsWith("_PIC:"));
                     if (!noteList.isEmpty()) {
                         List<String> keywordList = JiebaUtil.getKeyword(String.join(".", noteList), 10);
                         PeriodKeyword periodKeyword = new PeriodKeyword();
@@ -78,6 +83,8 @@ public class AnalyseKeywordTask {
                     params.put("start", DateUtil.getMonthBeginTimestamp(now, 1) / 1000);
                     params.put("end", DateUtil.getMonthEndTimestamp(now, -1));
                     noteList = noteMapper.selectByUidAndTime(params);
+                    // 去除图片
+                    noteList.removeIf(s -> s.startsWith("_PIC:"));
                     if (!noteList.isEmpty()) {
                         List<String> keywordList = JiebaUtil.getKeyword(String.join(".", noteList), 15);
                         PeriodKeyword periodKeyword = new PeriodKeyword();

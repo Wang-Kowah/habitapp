@@ -652,11 +652,14 @@ public class UserController {
                 out.flush();
                 out.close();
 
+                String picName = "_PIC:" + uidStr + File.separator + now + suffix;
+                result.put("picName", picName);
+
                 // 更新数据库
                 Note note = new Note();
                 note.setUid(uid);
                 note.setType(type);
-                note.setContent("_PIC:" + uidStr + File.separator + now + suffix);
+                note.setContent(picName);
                 note.setCreateTime((int) (now / 1000));
                 try {
                     BigDecimal lat = new BigDecimal(latStr);
