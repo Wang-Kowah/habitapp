@@ -32,8 +32,7 @@ public class AnalyseKeywordTask {
     private UserMapper userMapper;
 
 
-    //    @Scheduled(cron = "0 0 0 * * ?") // 每天00:00:00调度
-    @Scheduled(cron = "* * * * * ?")
+    @Scheduled(cron = "0 0 0 * * ?") // 每天00:00:00调度
     public void analyseKeyword() {
         try {
             long now = System.currentTimeMillis();
