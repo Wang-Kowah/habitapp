@@ -444,7 +444,7 @@ public class UserController {
             if (file.exists()) {
                 String suffix = filePath.substring(filePath.lastIndexOf("."));
                 response.setContentType("application/force-download");// 设置强制下载不打开
-                response.addHeader("Content-Disposition", "attachment;fileName=" + uid + suffix);// 设置文件名
+                response.addHeader("Content-Disposition", "attachment;fileName=" +  file.lastModified() / 1000 + suffix);// 设置文件名
                 byte[] buffer = new byte[1024];
                 bis = new BufferedInputStream(new FileInputStream(file));
 
