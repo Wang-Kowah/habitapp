@@ -637,6 +637,7 @@ public class UserController {
                 String fileNameOriginal = pic.getOriginalFilename();
                 String mimeType = request.getServletContext().getMimeType(fileNameOriginal);
                 if (!mimeType.startsWith("image/")) {
+                    //TODO webp会出错
                     throw new Exception();
                 }
                 long now = System.currentTimeMillis();

@@ -25,6 +25,7 @@ public interface NoteMapper {
 
     List<String> selectByUidAndTime(Map<String, Object> params);
 
+    // 指定了collate utf8mb4_unicode_ci，查询不区分key的大小写
     List<Note> searchByUidAndTypeAndKey(Map<String, Object> params);
 
     List<UserStatisticVo> getActiveUserNum(Integer lastWeekStart, Integer lastWeekEnd);
