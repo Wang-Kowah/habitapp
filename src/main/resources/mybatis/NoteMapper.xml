@@ -159,4 +159,10 @@
     where create_time between #{lastWeekStart,jdbcType=INTEGER} and #{lastWeekEnd,jdbcType=INTEGER}
     group by uid order by count desc;
   </select>
+    <select id="getSentPicUserNum" resultMap="UserStatisticMap">
+    select uid,count(uid) as count from t_note_list
+    where content like '%_PIC:%' and
+    create_time between #{lastWeekStart,jdbcType=INTEGER} and #{lastWeekEnd,jdbcType=INTEGER}
+    group by uid order by count desc;
+  </select>
 </mapper>

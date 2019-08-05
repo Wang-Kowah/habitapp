@@ -33,15 +33,17 @@ public class IndexController {
     public Map<String, Object> statistic() {
         Map<String, Object> result = new HashMap<>();
         ErrorCode errorCode = ErrorCode.SUCCESS;
-        //截止上周日总用户数、仅上周发过帖子的人数
+        //截止上周日总用户数以及每个用户的发帖数、上周发过帖子的人数、上周发过图片的人数
         int lastWeekEnd = (int) (DateUtil.getMondayBeginTimestamp(System.currentTimeMillis(), 0) / 1000 - 1);
         int totalUser = userMapper.getTotalUserNum(lastWeekEnd);
-        List<UserStatisticVo> activeUserLastWeek = noteMapper.getActiveUserNum((int) (DateUtil.getMondayBeginTimestamp(System.currentTimeMillis(), 1) / 1000), lastWeekEnd);
         List<UserStatisticVo> userDataAllTime = noteMapper.getActiveUserNum(0, lastWeekEnd);
+        List<UserStatisticVo> activeUserLastWeek = noteMapper.getActiveUserNum((int) (DateUtil.getMondayBeginTimestamp(System.currentTimeMillis(), 1) / 1000), lastWeekEnd);
+        List<UserStatisticVo> sentPicUserLastWeek = noteMapper.getSentPicUserNum((int) (DateUtil.getMondayBeginTimestamp(System.currentTimeMillis(), 1) / 1000), lastWeekEnd);
 
         result.put("totalUser", totalUser);
-        result.put("activeUserLastWeek", activeUserLastWeek.size());
         result.put("userDataAllTime", userDataAllTime);
+        result.put("activeUserLastWeek", activeUserLastWeek.size());
+        result.put("sentPicUserLastWeek", sentPicUserLastWeek.size());
         result.put("retcode", errorCode.getCode());
         result.put("msg", errorCode.getMsg());
         return result;

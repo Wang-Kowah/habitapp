@@ -29,4 +29,6 @@ public interface NoteMapper {
     List<Note> searchByUidAndTypeAndKey(Map<String, Object> params);
 
     List<UserStatisticVo> getActiveUserNum(Integer lastWeekStart, Integer lastWeekEnd);
+
+    List<UserStatisticVo> getSentPicUserNum(Integer lastWeekStart, Integer lastWeekEnd);
 }
