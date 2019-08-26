@@ -165,4 +165,10 @@
     create_time between #{lastWeekStart,jdbcType=INTEGER} and #{lastWeekEnd,jdbcType=INTEGER}
     group by uid order by count desc;
   </select>
+    <select id="getLocationUserNum" resultMap="UserStatisticMap">
+    select uid,count(uid) as count from t_note_list
+    where lat is not null and lng is not null and
+    create_time between #{lastWeekStart,jdbcType=INTEGER} and #{lastWeekEnd,jdbcType=INTEGER}
+    group by uid order by count desc;
+  </select>
 </mapper>

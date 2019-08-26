@@ -31,4 +31,6 @@ public interface NoteMapper {
     List<UserStatisticVo> getActiveUserNum(Integer lastWeekStart, Integer lastWeekEnd);
 
     List<UserStatisticVo> getSentPicUserNum(Integer lastWeekStart, Integer lastWeekEnd);
+
+    List<UserStatisticVo> getLocationUserNum(Integer lastWeekStart, Integer lastWeekEnd);
 }

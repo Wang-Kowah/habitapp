@@ -11,9 +11,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 @Controller
 @RequestMapping("/")
@@ -32,20 +36,32 @@ public class IndexController {
     @RequestMapping(value = "/statistic", method = RequestMethod.GET)
     public Map<String, Object> statistic() {
         Map<String, Object> result = new HashMap<>();
-        ErrorCode errorCode = ErrorCode.SUCCESS;
-        //截止上周日总用户数以及每个用户的发帖数、上周发过帖子的人数、上周发过图片的人数
         int lastWeekEnd = (int) (DateUtil.getMondayBeginTimestamp(System.currentTimeMillis(), 0) / 1000 - 1);
+        int lastMonday = (int) (DateUtil.getMondayBeginTimestamp(System.currentTimeMillis(), 1) / 1000);
+        //截止上周日总用户数以及每个用户的发帖数、上周发帖人数、上周发图人数、上周发帖带位置人数、连续两周发帖人数
         int totalUser = userMapper.getTotalUserNum(lastWeekEnd);
         List<UserStatisticVo> userDataAllTime = noteMapper.getActiveUserNum(0, lastWeekEnd);
-        List<UserStatisticVo> activeUserLastWeek = noteMapper.getActiveUserNum((int) (DateUtil.getMondayBeginTimestamp(System.currentTimeMillis(), 1) / 1000), lastWeekEnd);
-        List<UserStatisticVo> sentPicUserLastWeek = noteMapper.getSentPicUserNum((int) (DateUtil.getMondayBeginTimestamp(System.currentTimeMillis(), 1) / 1000), lastWeekEnd);
+        List<UserStatisticVo> activeUserLastWeek = noteMapper.getActiveUserNum(lastMonday, lastWeekEnd);
+        List<UserStatisticVo> sentPicUserLastWeek = noteMapper.getSentPicUserNum(lastMonday, lastWeekEnd);
+        List<UserStatisticVo> sentLocationUserLastWeek = noteMapper.getLocationUserNum(lastMonday, lastWeekEnd);
+        List<UserStatisticVo> activeUserTwoWeek = noteMapper.getActiveUserNum(
+                (int) (DateUtil.getMondayBeginTimestamp(System.currentTimeMillis(), 2) / 1000),
+                (int) (DateUtil.getMondayBeginTimestamp(System.currentTimeMillis(), 1) / 1000 - 1)
+        );
+        List<Integer> uidList = activeUserLastWeek.stream()
+                .map(UserStatisticVo::getUid)
+                .collect(toList());
+//        activeUserTwoWeek.removeIf(vo -> !uidList.contains(vo.getUid()));
+        activeUserTwoWeek = activeUserTwoWeek.stream()
+                .filter(vo -> uidList.contains(vo.getUid()))
+                .collect(toList());
 
         result.put("totalUser", totalUser);
         result.put("userDataAllTime", userDataAllTime);
         result.put("activeUserLastWeek", activeUserLastWeek.size());
+        result.put("activeUserTwoWeek", activeUserTwoWeek.size());
         result.put("sentPicUserLastWeek", sentPicUserLastWeek.size());
-        result.put("retcode", errorCode.getCode());
-        result.put("msg", errorCode.getMsg());
+        result.put("sentLocationUserLastWeek", sentLocationUserLastWeek.size());
         return result;
     }
 }
