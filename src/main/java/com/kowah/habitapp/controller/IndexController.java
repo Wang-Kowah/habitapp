@@ -40,19 +40,22 @@ public class IndexController {
         int lastMonday = (int) (DateUtil.getMondayBeginTimestamp(System.currentTimeMillis(), 1) / 1000);
         //截止上周日总用户数以及每个用户的发帖数、上周发帖人数、上周发图人数、上周发帖带位置人数、连续两周发帖人数
         int totalUser = userMapper.getTotalUserNum(lastWeekEnd);
-        List<UserStatisticVo> userDataAllTime = noteMapper.getActiveUserNum(0, lastWeekEnd);
+        List<UserStatisticVo> userDataAllTime = noteMapper.getActiveUserNum(0, lastWeekEnd)
+                .stream()
+                .filter(vo -> vo.getCount() >= 5)
+                .collect(toList());
         List<UserStatisticVo> activeUserLastWeek = noteMapper.getActiveUserNum(lastMonday, lastWeekEnd);
         List<UserStatisticVo> sentPicUserLastWeek = noteMapper.getSentPicUserNum(lastMonday, lastWeekEnd);
         List<UserStatisticVo> sentLocationUserLastWeek = noteMapper.getLocationUserNum(lastMonday, lastWeekEnd);
-        List<UserStatisticVo> activeUserTwoWeek = noteMapper.getActiveUserNum(
-                (int) (DateUtil.getMondayBeginTimestamp(System.currentTimeMillis(), 2) / 1000),
-                (int) (DateUtil.getMondayBeginTimestamp(System.currentTimeMillis(), 1) / 1000 - 1)
-        );
+
         List<Integer> uidList = activeUserLastWeek.stream()
                 .map(UserStatisticVo::getUid)
                 .collect(toList());
 //        activeUserTwoWeek.removeIf(vo -> !uidList.contains(vo.getUid()));
-        activeUserTwoWeek = activeUserTwoWeek.stream()
+        List<UserStatisticVo> activeUserTwoWeek = noteMapper.getActiveUserNum(
+                (int) (DateUtil.getMondayBeginTimestamp(System.currentTimeMillis(), 2) / 1000),
+                (int) (DateUtil.getMondayBeginTimestamp(System.currentTimeMillis(), 1) / 1000 - 1))
+                .stream()
                 .filter(vo -> uidList.contains(vo.getUid()))
                 .collect(toList());
 
