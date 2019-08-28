@@ -33,4 +33,6 @@ public interface NoteMapper {
     List<UserStatisticVo> getSentPicUserNum(Integer lastWeekStart, Integer lastWeekEnd);
 
     List<UserStatisticVo> getLocationUserNum(Integer lastWeekStart, Integer lastWeekEnd);
+
+    List<Note> searchByUidAndTimeAndLocation(Map<String, Object> params);
 }

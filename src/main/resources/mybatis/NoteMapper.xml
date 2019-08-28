@@ -161,14 +161,22 @@
   </select>
     <select id="getSentPicUserNum" resultMap="UserStatisticMap">
     select uid,count(uid) as count from t_note_list
-    where content like '%_PIC:%' and
-    create_time between #{lastWeekStart,jdbcType=INTEGER} and #{lastWeekEnd,jdbcType=INTEGER}
+    where content like '_PIC:%'
+    and create_time between #{lastWeekStart,jdbcType=INTEGER} and #{lastWeekEnd,jdbcType=INTEGER}
     group by uid order by count desc;
   </select>
     <select id="getLocationUserNum" resultMap="UserStatisticMap">
     select uid,count(uid) as count from t_note_list
-    where lat is not null and lng is not null and
-    create_time between #{lastWeekStart,jdbcType=INTEGER} and #{lastWeekEnd,jdbcType=INTEGER}
+    where lat is not null and lng is not null
+    and create_time between #{lastWeekStart,jdbcType=INTEGER} and #{lastWeekEnd,jdbcType=INTEGER}
     group by uid order by count desc;
+  </select>
+    <select id="searchByUidAndTimeAndLocation" resultMap="BaseResultMap">
+    select * from t_note_list
+    where uid = #{uid,jdbcType=INTEGER} and content not like '_PIC:%'
+    and create_time between #{timeStart,jdbcType=INTEGER} and #{timeEnd,jdbcType=INTEGER}
+    and lat between #{latStart,jdbcType=DECIMAL} and #{latEnd,jdbcType=DECIMAL}
+    and lng between #{lngStart,jdbcType=DECIMAL} and #{lngEnd,jdbcType=DECIMAL}
+    order by create_time desc limit 30
   </select>
 </mapper>

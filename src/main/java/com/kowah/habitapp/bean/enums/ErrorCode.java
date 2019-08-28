@@ -8,7 +8,6 @@ public enum ErrorCode {
     PARAM_ERROR(1001, "参数错误"),
     TIME_OUT(1002, "请求超时"),
     SYSTEM_ERROR(1003, "系统错误，请稍后再试！"),
-    UNKNOWN_ERROR(1004, "未知错误，请稍后再试！"),
 
     // 登录相关
     LOGIN_FAIL(2001, "登录失败,用户名或者密码错误!"),
@@ -22,7 +21,8 @@ public enum ErrorCode {
 
     // 用户相关错误码6000
     USER_IS_NOT_EXIST(6001, "用户不存在"),
-    UPLOAD_PIC_ERROR(6002,"上传图片失败，请稍后再试！");
+    UPLOAD_PIC_ERROR(6002,"上传图片失败，请稍后再试"),
+    INVALID_LOCATION(6003,"地址信息无效");
 
     private int code;
     private String msg;

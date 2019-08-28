@@ -12,6 +12,8 @@ import com.kowah.habitapp.dbmapper.PeriodKeywordMapper;
 import com.kowah.habitapp.dbmapper.UserMapper;
 import com.kowah.habitapp.service.PageService;
 import com.kowah.habitapp.service.SendMsgService;
+import com.kowah.habitapp.utils.DateUtil;
+import com.kowah.habitapp.utils.LatAndLongitudeUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +29,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -39,6 +43,14 @@ public class UserController {
      * 默认拉取10条便签
      */
     private static final int DEFAULT_NOTE_HISTORY = 10;
+    /**
+     * 此时此地默认取30分钟
+     */
+    private static final int DEFAULT_TIME_RANGE = 30 * 60;
+    /**
+     * 此时此地默认取500m
+     */
+    private static final int DEFAULT_DISTANCE_RANGE = 500;
     /**
      * 用户头像存储地址
      */
@@ -444,7 +456,7 @@ public class UserController {
             if (file.exists()) {
                 String suffix = filePath.substring(filePath.lastIndexOf("."));
                 response.setContentType("application/force-download");// 设置强制下载不打开
-                response.addHeader("Content-Disposition", "attachment;fileName=" +  file.lastModified() / 1000 + suffix);// 设置文件名
+                response.addHeader("Content-Disposition", "attachment;fileName=" + file.lastModified() / 1000 + suffix);// 设置文件名
                 byte[] buffer = new byte[1024];
                 bis = new BufferedInputStream(new FileInputStream(file));
 
@@ -732,6 +744,82 @@ public class UserController {
                     e.printStackTrace();
                 }
             }
+        }
+
+        result.put("retcode", errorCode.getCode());
+        result.put("msg", errorCode.getMsg());
+        return result;
+    }
+
+    /**
+     * 此时此地模块
+     */
+    @RequestMapping(value = "/hereAndNow", method = RequestMethod.POST)
+    @ResponseBody
+    public Map<String, Object> hereAndNow(HttpServletRequest request, HttpServletResponse response) {
+        Map<String, Object> result = new HashMap<>();
+        ErrorCode errorCode = ErrorCode.SUCCESS;
+        String uidStr = request.getParameter("uid");
+        String latStr = request.getParameter("lat");
+        String lngStr = request.getParameter("lng");
+        String timeStr = request.getParameter("time");
+        String distanceStr = request.getParameter("distance");
+
+        int time, distance, uid;
+        try {
+            time = Integer.parseInt(timeStr) * 60;
+        } catch (Exception e) {
+            time = DEFAULT_TIME_RANGE;
+        }
+
+        try {
+            distance = Integer.parseInt(distanceStr);
+        } catch (Exception e) {
+            distance = DEFAULT_DISTANCE_RANGE;
+        }
+
+        BigDecimal lat, lng;
+        try {
+            uid = Integer.parseInt(uidStr);
+            lat = new BigDecimal(latStr);
+            lng = new BigDecimal(lngStr);
+
+            int now = (int) (System.currentTimeMillis() / 1000);
+            double lat1, lat2, lng1, lng2;
+            LatAndLongitudeUtil.Location[] locations = LatAndLongitudeUtil.getRectangle4Point(lat.doubleValue(), lng.doubleValue(), (double) distance);
+            lat1 = locations[2].latitude;
+            lat2 = locations[1].latitude;
+            lng1 = locations[2].longitude;
+            lng2 = locations[1].longitude;
+
+            Map<String, Object> params = new HashMap<>();
+            params.put("uid", uid);
+            params.put("latStart", lat1);
+            params.put("latEnd", lat2);
+            params.put("lngStart", lng1);
+            params.put("lngEnd", lng2);
+            List<Note> noteList = new ArrayList<>();
+
+            for (int i = 0; i < 14; i++) {
+                now -= 24 * 60 * 60;
+                params.put("timeStart", now - time);
+                params.put("timeEnd", now + time);
+                noteList.addAll(noteMapper.searchByUidAndTimeAndLocation(params));
+
+                if (noteList.size() >= 30) {
+                    noteList = noteList.subList(0, 30);
+                    break;
+                }
+            }
+
+            result.put("noteList", noteList);
+            result.put("size", noteList.size());
+            result.put("timeRange(min)", time / 60);
+            result.put("distanceRange(m)", distance);
+        } catch (NumberFormatException e) {
+            errorCode = ErrorCode.PARAM_ERROR;
+        } catch (Exception e) {
+            errorCode = ErrorCode.INVALID_LOCATION;
         }
 
         result.put("retcode", errorCode.getCode());

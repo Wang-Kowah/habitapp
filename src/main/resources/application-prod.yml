@@ -32,8 +32,3 @@ spring:
     multipart:
       # 上传文件大小限制
       max-file-size: 10MB
-
-# 该配置节点为独立的节点，放在spring的节点下会导致配置无法被识别
-mybatis:
-  mapper-locations: classpath:mybatis/*.xml       # 对应mapper映射xml文件的所在路径
-  type-aliases-package: com.kowah.habitapp.bean    # 对应实体类的路径

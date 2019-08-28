@@ -36,6 +36,12 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- Spring boot AOP-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+
         <!-- Spring boot Cache-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
