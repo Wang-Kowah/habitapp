@@ -46,11 +46,11 @@ public class UserController {
     /**
      * 此时此地默认取30分钟
      */
-    private static final int DEFAULT_TIME_RANGE = 30 * 60;
+    private static final int DEFAULT_TIME_RANGE = 60 * 60;
     /**
      * 此时此地默认取500m
      */
-    private static final int DEFAULT_DISTANCE_RANGE = 500;
+    private static final int DEFAULT_DISTANCE_RANGE = 1000;
     /**
      * 用户头像存储地址
      */
@@ -820,6 +820,7 @@ public class UserController {
             errorCode = ErrorCode.PARAM_ERROR;
         } catch (Exception e) {
             errorCode = ErrorCode.INVALID_LOCATION;
+            logger.debug("here and now error", e);
         }
 
         result.put("retcode", errorCode.getCode());
