@@ -13,16 +13,14 @@ import com.kowah.habitapp.dbmapper.UserMapper;
 import com.kowah.habitapp.service.PageService;
 import com.kowah.habitapp.service.SendMsgService;
 import com.kowah.habitapp.utils.DateUtil;
+import com.kowah.habitapp.utils.JiebaUtil;
 import com.kowah.habitapp.utils.LatAndLongitudeUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
@@ -821,6 +819,36 @@ public class UserController {
         } catch (Exception e) {
             errorCode = ErrorCode.INVALID_LOCATION;
             logger.debug("here and now error", e);
+        }
+
+        result.put("retcode", errorCode.getCode());
+        result.put("msg", errorCode.getMsg());
+        return result;
+    }
+
+    /**
+     * 提取关键词
+     */
+    @PostMapping(value = "/extractKeyword")
+    @ResponseBody
+    public Map<String, Object> extractKeyword(HttpServletRequest request, HttpServletResponse response) {
+        Map<String, Object> result = new HashMap<>();
+        ErrorCode errorCode = ErrorCode.SUCCESS;
+        String voiceStr = request.getParameter("text");
+        String topNStr = request.getParameter("topN");
+
+        int topN;
+        try {
+            topN = Integer.parseInt(topNStr);
+        } catch (Exception e) {
+            topN = 2;
+        }
+
+        try {
+            List<String> keywords = JiebaUtil.getKeyword(voiceStr, topN);
+            result.put("keywords", keywords);
+        } catch (Exception e) {
+            errorCode = ErrorCode.EXTRACT_KEYWORD_ERROR;
         }
 
         result.put("retcode", errorCode.getCode());

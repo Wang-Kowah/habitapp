@@ -21,8 +21,9 @@ public enum ErrorCode {
 
     // 用户相关错误码6000
     USER_IS_NOT_EXIST(6001, "用户不存在"),
-    UPLOAD_PIC_ERROR(6002,"上传图片失败，请稍后再试"),
-    INVALID_LOCATION(6003,"地址信息无效");
+    UPLOAD_PIC_ERROR(6002, "上传图片失败，请稍后再试"),
+    INVALID_LOCATION(6003, "地址信息无效"),
+    EXTRACT_KEYWORD_ERROR(6004, "提取关键词失败");
 
     private int code;
     private String msg;
