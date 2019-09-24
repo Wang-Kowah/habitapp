@@ -27,10 +27,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping(value = "/user")
@@ -265,6 +263,7 @@ public class UserController {
     /**
      * 用户登录
      */
+    @Deprecated
     @RequestMapping(value = "/logIn", method = RequestMethod.POST)
     @ResponseBody
     public Map<String, Object> logIn(HttpServletRequest request, HttpServletResponse response) {
@@ -829,6 +828,7 @@ public class UserController {
     /**
      * 提取关键词
      */
+    @Deprecated
     @PostMapping(value = "/extractKeyword")
     @ResponseBody
     public Map<String, Object> extractKeyword(HttpServletRequest request, HttpServletResponse response) {
@@ -856,4 +856,68 @@ public class UserController {
         return result;
     }
 
+    /**
+     * 交流助理模块
+     */
+    @PostMapping(value = "/extractVoiceText")
+    @ResponseBody
+    public Map<String, Object> extractVoiceText(HttpServletRequest request, HttpServletResponse response) {
+        Map<String, Object> result = new HashMap<>();
+        ErrorCode errorCode = ErrorCode.SUCCESS;
+        String uidStr = request.getParameter("uid");
+        String voiceStr = request.getParameter("text");
+
+        int uid, topN = 2, type = 0;
+
+        // 空白字符串直接返回
+        if (StringUtils.isEmpty(voiceStr) || StringUtils.isBlank(voiceStr)) {
+            result.put("size", 0);
+            result.put("retcode", errorCode.getCode());
+            result.put("msg", errorCode.getMsg());
+            return result;
+        }
+
+        try {
+            uid = Integer.parseInt(uidStr);
+        } catch (Exception e) {
+            logger.error("", e);
+            errorCode = ErrorCode.PARAM_ERROR;
+            result.put("retcode", errorCode.getCode());
+            result.put("msg", errorCode.getMsg());
+            return result;
+        }
+
+        try {
+            // TODO jieba启动加载过久
+            List<String> keywords = JiebaUtil.getKeyword(voiceStr, topN);
+
+            List<Note> notes = new ArrayList<>();
+            for (String keyword : keywords) {
+                Map<String, Object> params = new HashMap<>();
+                params.put("uid", uid);
+                params.put("type", type);
+                params.put("key", '%' + keyword + '%');
+                notes.addAll(noteMapper.searchByUidAndTypeAndKey(params));
+            }
+
+            if (notes.size() != 0) {
+                // 去重排序截取
+                notes = notes.stream()
+                        .distinct()     // 需重写equals跟hashCode
+                        .sorted((o1, o2) -> o2.getCreateTime() - o1.getCreateTime())
+                        .limit(30)
+                        .collect(Collectors.toList());
+
+                result.put("result", notes);
+            }
+
+            result.put("size", notes.size());
+        } catch (Exception e) {
+            errorCode = ErrorCode.EXTRACT_KEYWORD_ERROR;
+        }
+
+        result.put("retcode", errorCode.getCode());
+        result.put("msg", errorCode.getMsg());
+        return result;
+    }
 }

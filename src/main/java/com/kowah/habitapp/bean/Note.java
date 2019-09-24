@@ -1,8 +1,10 @@
 package com.kowah.habitapp.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import javafx.scene.Parent;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 public class Note {
     private Integer id;
@@ -83,5 +85,22 @@ public class Note {
 
     public void setDelFlag(Integer delFlag) {
         this.delFlag = delFlag;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+
+        return this.id.equals(((Note) obj).id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }
