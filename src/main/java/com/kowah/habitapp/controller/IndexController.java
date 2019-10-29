@@ -42,7 +42,7 @@ public class IndexController {
         int totalUser = userMapper.getTotalUserNum(lastWeekEnd);
         List<UserStatisticVo> userDataAllTime = noteMapper.getActiveUserNum(0, lastWeekEnd)
                 .stream()
-                .filter(vo -> vo.getCount() >= 5)
+                .filter(vo -> vo.getCount() >= 50)
                 .collect(toList());
         List<UserStatisticVo> activeUserLastWeek = noteMapper.getActiveUserNum(lastMonday, lastWeekEnd);
         List<UserStatisticVo> sentPicUserLastWeek = noteMapper.getSentPicUserNum(lastMonday, lastWeekEnd);

@@ -797,7 +797,7 @@ public class UserController {
             params.put("lngEnd", lng2);
             List<Note> noteList = new ArrayList<>();
 
-            for (int i = 0; i < 14; i++) {
+            for (int i = 0; i < 28; i++) {
                 now -= 24 * 60 * 60;
                 params.put("timeStart", now - time);
                 params.put("timeEnd", now + time);
@@ -872,6 +872,7 @@ public class UserController {
         // 空白字符串直接返回
         if (StringUtils.isEmpty(voiceStr) || StringUtils.isBlank(voiceStr)) {
             result.put("size", 0);
+            result.put("keywords", new ArrayList<>());
             result.put("retcode", errorCode.getCode());
             result.put("msg", errorCode.getMsg());
             return result;
@@ -888,7 +889,6 @@ public class UserController {
         }
 
         try {
-            // TODO jieba启动加载过久
             List<String> keywords = JiebaUtil.getKeyword(voiceStr, topN);
 
             List<Note> notes = new ArrayList<>();
@@ -911,6 +911,7 @@ public class UserController {
                 result.put("result", notes);
             }
 
+            result.put("keywords", keywords);
             result.put("size", notes.size());
         } catch (Exception e) {
             errorCode = ErrorCode.EXTRACT_KEYWORD_ERROR;
