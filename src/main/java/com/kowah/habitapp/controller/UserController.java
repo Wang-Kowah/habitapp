@@ -12,14 +12,12 @@ import com.kowah.habitapp.dbmapper.PeriodKeywordMapper;
 import com.kowah.habitapp.dbmapper.UserMapper;
 import com.kowah.habitapp.service.PageService;
 import com.kowah.habitapp.service.SendMsgService;
-import com.kowah.habitapp.utils.DateUtil;
 import com.kowah.habitapp.utils.JiebaUtil;
 import com.kowah.habitapp.utils.LatAndLongitudeUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,35 +25,28 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
-@Controller
-@RequestMapping(value = "/user")
+@RestController
+@RequestMapping("/user")
 public class UserController {
     private final static Logger logger = LoggerFactory.getLogger(UserController.class);
 
-    /**
-     * 默认拉取10条便签
-     */
+    // 默认拉取10条便签
     private static final int DEFAULT_NOTE_HISTORY = 10;
-    /**
-     * 此时此地默认取30分钟
-     */
+    // 此时此地默认取60分钟
     private static final int DEFAULT_TIME_RANGE = 60 * 60;
-    /**
-     * 此时此地默认取500m
-     */
+    // 此时此地默认取1000m
     private static final int DEFAULT_DISTANCE_RANGE = 1000;
-    /**
-     * 用户头像存储地址
-     */
-    // NORMAL
+    // 此时此地默认取四周
+    private static final int DEFAULT_DATE_RANGE = 4 * 7;
+    // 用户头像、图片存储地址
     private static final String PROFILE_PIC_LOCATION = "/data/habit/pic";
     private static final String NOTE_PIC_LOCATION = "/data/habit/pic/note";
-    // TEST
-//    private static final String PROFILE_PIC_LOCATION = "C:" + File.separator + "Data" + File.separator + "pic";
-//    private static final String NOTE_PIC_LOCATION = "F:" + File.separator + "Data" + File.separator + "pic" + File.separator + "note";
 
     @Autowired
     private DayKeywordMapper dayKeywordMapper;
@@ -73,8 +64,7 @@ public class UserController {
     /**
      * 获取个人信息
      */
-    @RequestMapping(value = "/info", method = RequestMethod.GET)
-    @ResponseBody
+    @GetMapping("/info")
     public Map<String, Object> getUserInfo(HttpServletRequest request, HttpServletResponse response) {
         Map<String, Object> result = new HashMap<>();
         ErrorCode errorCode = ErrorCode.SUCCESS;
@@ -102,8 +92,7 @@ public class UserController {
     /**
      * 获取便签历史记录
      */
-    @RequestMapping(value = "/noteList", method = RequestMethod.GET)
-    @ResponseBody
+    @GetMapping("/noteList")
     public Map<String, Object> getNoteList(HttpServletRequest request, HttpServletResponse response) {
         Map<String, Object> result = new HashMap<>();
         ErrorCode errorCode = ErrorCode.SUCCESS;
@@ -147,8 +136,7 @@ public class UserController {
     /**
      * 发送便签
      */
-    @RequestMapping(value = "/sendNote", method = RequestMethod.POST)
-    @ResponseBody
+    @PostMapping("/sendNote")
     public Map<String, Object> sendNote(HttpServletRequest request, HttpServletResponse response) {
         Map<String, Object> result = new HashMap<>();
         ErrorCode errorCode = ErrorCode.SUCCESS;
@@ -202,8 +190,7 @@ public class UserController {
     /**
      * 用户注册
      */
-    @RequestMapping(value = "/signUp", method = RequestMethod.POST)
-    @ResponseBody
+    @PostMapping("/signUp")
     public Map<String, Object> signUp(HttpServletRequest request, HttpServletResponse response) {
         Map<String, Object> result = new HashMap<>();
         ErrorCode errorCode = ErrorCode.SUCCESS;
@@ -264,8 +251,7 @@ public class UserController {
      * 用户登录
      */
     @Deprecated
-    @RequestMapping(value = "/logIn", method = RequestMethod.POST)
-    @ResponseBody
+    @PostMapping("/logIn")
     public Map<String, Object> logIn(HttpServletRequest request, HttpServletResponse response) {
         Map<String, Object> result = new HashMap<>();
         ErrorCode errorCode = ErrorCode.SUCCESS;
@@ -309,8 +295,7 @@ public class UserController {
     /**
      * 获取验证码
      */
-    @RequestMapping(value = "/getVerifyCode", method = RequestMethod.POST)
-    @ResponseBody
+    @PostMapping("/getVerifyCode")
     public Map<String, Object> verifyCode(HttpServletRequest request, HttpServletResponse response) {
         Map<String, Object> result = new HashMap<>();
         ErrorCode errorCode;
@@ -339,8 +324,7 @@ public class UserController {
     /**
      * 验证码校验模块
      */
-    @RequestMapping(value = "/checkVerifyCode", method = RequestMethod.POST)
-    @ResponseBody
+    @PostMapping("/checkVerifyCode")
     public Map<String, Object> checkVerifyCode(HttpServletRequest request, HttpServletResponse response) {
         Map<String, Object> result = new HashMap<>();
         ErrorCode errorCode = ErrorCode.SUCCESS;
@@ -366,8 +350,7 @@ public class UserController {
     /**
      * 上传头像
      */
-    @RequestMapping(value = "/uploadProfile", method = RequestMethod.POST)
-    @ResponseBody
+    @PostMapping("/uploadProfile")
     public Map<String, Object> profilePic(@RequestParam("pic") MultipartFile pic, HttpServletRequest request) {
         Map<String, Object> result = new HashMap<>();
         ErrorCode errorCode = ErrorCode.SUCCESS;
@@ -427,8 +410,7 @@ public class UserController {
     /**
      * 获取头像
      */
-    @RequestMapping(value = "/profile", method = RequestMethod.GET)
-    @ResponseBody
+    @GetMapping("/profile")
     public Map<String, Object> getProfilePic(HttpServletRequest request, HttpServletResponse response) {
         Map<String, Object> result = new HashMap<>();
         ErrorCode errorCode;
@@ -487,8 +469,7 @@ public class UserController {
     /**
      * 获取每日关键词记录
      */
-    @RequestMapping(value = "/dayKeyword", method = RequestMethod.GET)
-    @ResponseBody
+    @GetMapping("/dayKeyword")
     public Map<String, Object> getDayKeyword(HttpServletRequest request, HttpServletResponse response) {
         Map<String, Object> result = new HashMap<>();
         ErrorCode errorCode = ErrorCode.SUCCESS;
@@ -525,8 +506,7 @@ public class UserController {
     /**
      * 获取每周/月关键词记录
      */
-    @RequestMapping(value = "/keyword", method = RequestMethod.GET)
-    @ResponseBody
+    @GetMapping("/keyword")
     public Map<String, Object> getKeyword(HttpServletRequest request, HttpServletResponse response) {
         Map<String, Object> result = new HashMap<>();
         ErrorCode errorCode = ErrorCode.SUCCESS;
@@ -568,8 +548,7 @@ public class UserController {
     /**
      * 搜索每日总结
      */
-    @RequestMapping(value = "/search", method = RequestMethod.POST)
-    @ResponseBody
+    @PostMapping("/search")
     public Map<String, Object> search(HttpServletRequest request, HttpServletResponse response) {
         Map<String, Object> result = new HashMap<>();
         ErrorCode errorCode = ErrorCode.SUCCESS;
@@ -617,8 +596,7 @@ public class UserController {
     /**
      * 发送图片便签
      */
-    @RequestMapping(value = "/sendPic", method = RequestMethod.POST)
-    @ResponseBody
+    @PostMapping("/sendPic")
     public Map<String, Object> sendPic(HttpServletRequest request, @RequestParam("pic") MultipartFile pic) {
         Map<String, Object> result = new HashMap<>();
         ErrorCode errorCode = ErrorCode.SUCCESS;
@@ -695,8 +673,7 @@ public class UserController {
     /**
      * 获取图片便签
      */
-    @RequestMapping(value = "/pic", method = RequestMethod.GET)
-    @ResponseBody
+    @GetMapping("/pic")
     public Map<String, Object> getPic(HttpServletRequest request, HttpServletResponse response) {
         Map<String, Object> result = new HashMap<>();
         ErrorCode errorCode;
@@ -751,8 +728,7 @@ public class UserController {
     /**
      * 此时此地模块
      */
-    @RequestMapping(value = "/hereAndNow", method = RequestMethod.POST)
-    @ResponseBody
+    @PostMapping("/hereAndNow")
     public Map<String, Object> hereAndNow(HttpServletRequest request, HttpServletResponse response) {
         Map<String, Object> result = new HashMap<>();
         ErrorCode errorCode = ErrorCode.SUCCESS;
@@ -797,7 +773,7 @@ public class UserController {
             params.put("lngEnd", lng2);
             List<Note> noteList = new ArrayList<>();
 
-            for (int i = 0; i < 28; i++) {
+            for (int i = 0; i < DEFAULT_DATE_RANGE; i++) {
                 now -= 24 * 60 * 60;
                 params.put("timeStart", now - time);
                 params.put("timeEnd", now + time);
@@ -829,8 +805,7 @@ public class UserController {
      * 提取关键词
      */
     @Deprecated
-    @PostMapping(value = "/extractKeyword")
-    @ResponseBody
+    @PostMapping("/extractKeyword")
     public Map<String, Object> extractKeyword(HttpServletRequest request, HttpServletResponse response) {
         Map<String, Object> result = new HashMap<>();
         ErrorCode errorCode = ErrorCode.SUCCESS;
@@ -859,8 +834,7 @@ public class UserController {
     /**
      * 交流助理模块
      */
-    @PostMapping(value = "/extractVoiceText")
-    @ResponseBody
+    @PostMapping("/extractVoiceText")
     public Map<String, Object> extractVoiceText(HttpServletRequest request, HttpServletResponse response) {
         Map<String, Object> result = new HashMap<>();
         ErrorCode errorCode = ErrorCode.SUCCESS;

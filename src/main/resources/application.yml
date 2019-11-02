@@ -10,6 +10,12 @@ spring:
     type: ehcache
     ehcache:
       config: classpath:ehcache.xml
+  aop:
+    auto: true
+    proxy-target-class: false
+
+logging:
+  config: classpath:logback-spring.xml
 
 server:
   servlet:

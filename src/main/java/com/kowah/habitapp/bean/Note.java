@@ -1,7 +1,6 @@
 package com.kowah.habitapp.bean;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import javafx.scene.Parent;
 
 import java.math.BigDecimal;
 import java.util.Objects;

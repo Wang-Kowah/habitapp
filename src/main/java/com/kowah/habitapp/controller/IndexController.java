@@ -1,6 +1,5 @@
 package com.kowah.habitapp.controller;
 
-import com.kowah.habitapp.bean.enums.ErrorCode;
 import com.kowah.habitapp.bean.vo.UserStatisticVo;
 import com.kowah.habitapp.dbmapper.NoteMapper;
 import com.kowah.habitapp.dbmapper.UserMapper;
@@ -11,11 +10,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
