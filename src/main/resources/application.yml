@@ -1,6 +1,6 @@
 spring:
   profiles:
-#    active: dev
+    #    active: dev
     active: prod
   http:
     encoding:
@@ -20,8 +20,20 @@ logging:
 server:
   servlet:
     context-path: /habit
+  undertow:
+    # 设置IO线程数, 它主要执行非阻塞的任务,它们会负责多个连接, 默认值是 max(CPU核心数, 2)
+    io-threads: 2
+    # 阻塞任务线程池, 当执行类似servlet请求阻塞操作, undertow会从这个线程池中取得线程, 它的值设置取决于系统的负载
+    # 默认值是 ioThreads * 8
+    worker-threads: 20
+    # 以下的配置会影响每块buffer的空间大小, 越小的空间被利用越充分, 这些buffer会用于IO操作, 有点类似netty的池化内存管理
+    # use 16k buffers for best performance
+    # as 16k is generally the max amount of data that can be sent in a single write() call
+    # 内存大于128Mb时默认值是 1024 * 16 - 20, the 20 is to allow some space for protocol headers, see UNDERTOW-1209
+    buffer-size: 16364
+    # 是否分配的直接内存(NIO直接分配的堆外内存)
+    direct-buffers: true
 
-# 该配置节点为独立的节点，放在spring的节点下会导致配置无法被识别
 mybatis:
   mapper-locations: classpath:mybatis/*.xml       # 对应mapper映射xml文件的所在路径
   type-aliases-package: com.kowah.habitapp.bean    # 对应实体类的路径
