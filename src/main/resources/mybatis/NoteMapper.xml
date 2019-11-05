@@ -173,7 +173,8 @@
   </select>
     <select id="searchByUidAndTimeAndLocation" resultMap="BaseResultMap">
     select * from t_note_list
-    where uid = #{uid,jdbcType=INTEGER} and content not like '_PIC:%'
+    where uid = #{uid,jdbcType=INTEGER}
+    <if test="pic != true"> and content not like '_PIC:%' </if>
     and create_time between #{timeStart,jdbcType=INTEGER} and #{timeEnd,jdbcType=INTEGER}
     and lat between #{latStart,jdbcType=DECIMAL} and #{latEnd,jdbcType=DECIMAL}
     and lng between #{lngStart,jdbcType=DECIMAL} and #{lngEnd,jdbcType=DECIMAL}

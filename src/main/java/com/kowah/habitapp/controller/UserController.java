@@ -737,6 +737,7 @@ public class UserController {
         String lngStr = request.getParameter("lng");
         String timeStr = request.getParameter("time");
         String distanceStr = request.getParameter("distance");
+        String picStr = request.getParameter("pic");
 
         int time, distance, uid;
         try {
@@ -749,6 +750,13 @@ public class UserController {
             distance = Integer.parseInt(distanceStr);
         } catch (Exception e) {
             distance = DEFAULT_DISTANCE_RANGE;
+        }
+
+        boolean pic;
+        try {
+            pic = Boolean.parseBoolean(picStr);
+        } catch (Exception e) {
+            pic = false;
         }
 
         BigDecimal lat, lng;
@@ -771,6 +779,7 @@ public class UserController {
             params.put("latEnd", lat2);
             params.put("lngStart", lng1);
             params.put("lngEnd", lng2);
+            params.put("pic", pic);
             List<Note> noteList = new ArrayList<>();
 
             for (int i = 0; i < DEFAULT_DATE_RANGE; i++) {
