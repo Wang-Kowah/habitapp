@@ -151,7 +151,8 @@
     <select id="searchByUidAndTypeAndKey" resultMap="BaseResultMap">
     select * from t_note_list
     where uid = #{uid,jdbcType=INTEGER} and type = #{type,jdbcType=INTEGER}
-    and content like #{key,jdbcType=VARCHAR} collate utf8mb4_unicode_ci
+    and content like #{key,jdbcType=VARCHAR} and content not like '_PIC:%'
+    collate utf8mb4_unicode_ci
     order by create_time desc
   </select>
     <select id="getActiveUserNum" resultMap="UserStatisticMap">
