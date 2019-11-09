@@ -1,15 +1,21 @@
 package com.kowah.habitapp.controller;
 
+import com.kowah.habitapp.bean.User;
+import com.kowah.habitapp.bean.enums.ErrorCode;
 import com.kowah.habitapp.bean.vo.UserStatisticVo;
 import com.kowah.habitapp.dbmapper.NoteMapper;
 import com.kowah.habitapp.dbmapper.UserMapper;
 import com.kowah.habitapp.utils.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,6 +68,40 @@ public class IndexController {
         result.put("activeUserTwoWeek", activeUserTwoWeek.size());
         result.put("sentPicUserLastWeek", sentPicUserLastWeek.size());
         result.put("sentLocationUserLastWeek", sentLocationUserLastWeek.size());
+        return result;
+    }
+
+    @GetMapping("/backupDB")
+    public Map<String, Object> getBackupDB(HttpServletRequest request, HttpServletResponse response) {
+        Map<String, Object> result = new HashMap<>();
+
+        BufferedInputStream bis = null;
+        try {
+            File file = new File("/data/habit/habit.sql");
+            if (file.exists()) {
+                response.setContentType("application/force-download");// 设置强制下载打开
+                response.addHeader("Content-Disposition", "attachment;fileName=" + file.lastModified() / 1000 + ".sql");// 设置文件名
+                byte[] buffer = new byte[1024];
+                bis = new BufferedInputStream(new FileInputStream(file));
+
+                OutputStream os = response.getOutputStream();
+                int i = bis.read(buffer);
+                while (i != -1) {
+                    os.write(buffer, 0, i);
+                    i = bis.read(buffer);
+                }
+                return null;
+            }
+        } catch (Exception ignored) {
+        } finally {
+            if (bis != null) {
+                try {
+                    bis.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
         return result;
     }
 }
