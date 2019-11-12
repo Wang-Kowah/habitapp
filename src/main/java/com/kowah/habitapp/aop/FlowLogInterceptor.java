@@ -1,6 +1,7 @@
 package com.kowah.habitapp.aop;
 
 import com.alibaba.fastjson.JSON;
+import com.kowah.habitapp.utils.HttpUtil;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -92,7 +93,7 @@ public class FlowLogInterceptor {
             return;
         }
         String path = request.getRequestURI();
-        String clientIp = getClientIp(request);
+        String clientIp = HttpUtil.getClientIp(request);
         Map param = dealWithReqParam(request);
 
         Object retCode = null;
@@ -143,28 +144,6 @@ public class FlowLogInterceptor {
             }
         }
         return params;
-    }
-
-    /**
-     * 获取客户端ip
-     */
-    private String getClientIp(HttpServletRequest request) {
-        String ip = request.getHeader("x-forwarded-for");
-        if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown")) {
-            ip = request.getHeader("Proxy-Client-IP");
-        }
-        if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown")) {
-            ip = request.getHeader("WL-Proxy-Client-IP");
-        }
-        if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown")) {
-            ip = request.getRemoteAddr();
-        }
-        if (ip != null) {
-            String[] ips = ip.split(",");
-            return ips[0].trim();
-        } else {
-            return request.getRemoteAddr();
-        }
     }
 
 }

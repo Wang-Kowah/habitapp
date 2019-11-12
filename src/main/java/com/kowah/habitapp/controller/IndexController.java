@@ -6,6 +6,8 @@ import com.kowah.habitapp.bean.vo.UserStatisticVo;
 import com.kowah.habitapp.dbmapper.NoteMapper;
 import com.kowah.habitapp.dbmapper.UserMapper;
 import com.kowah.habitapp.utils.DateUtil;
+import com.kowah.habitapp.utils.HttpUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -72,8 +74,11 @@ public class IndexController {
     }
 
     @GetMapping("/backupDB")
-    public Map<String, Object> getBackupDB(HttpServletRequest request, HttpServletResponse response) {
-        Map<String, Object> result = new HashMap<>();
+    public void getBackupDB(HttpServletRequest request, HttpServletResponse response) {
+        String auth = request.getParameter("authUser");
+        if (StringUtils.isEmpty(auth) || StringUtils.isBlank(auth) || !auth.equals("habit")) {
+            return;
+        }
 
         BufferedInputStream bis = null;
         try {
@@ -90,7 +95,6 @@ public class IndexController {
                     os.write(buffer, 0, i);
                     i = bis.read(buffer);
                 }
-                return null;
             }
         } catch (Exception ignored) {
         } finally {
@@ -102,6 +106,5 @@ public class IndexController {
                 }
             }
         }
-        return result;
     }
 }
