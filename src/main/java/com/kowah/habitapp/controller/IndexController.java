@@ -86,6 +86,7 @@ public class IndexController {
             if (file.exists()) {
                 response.setContentType("application/force-download");// 设置强制下载打开
                 response.addHeader("Content-Disposition", "attachment;fileName=" + file.lastModified() / 1000 + ".sql");// 设置文件名
+                response.addHeader("Content-Length", String.valueOf(file.length()));
                 byte[] buffer = new byte[1024];
                 bis = new BufferedInputStream(new FileInputStream(file));
 
