@@ -2,6 +2,8 @@ package com.kowah.habitapp.dbmapper;
 
 import com.kowah.habitapp.bean.Note;
 import com.kowah.habitapp.bean.vo.UserStatisticVo;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 import java.util.Map;
@@ -35,4 +37,7 @@ public interface NoteMapper {
     List<UserStatisticVo> getLocationUserNum(Integer lastWeekStart, Integer lastWeekEnd);
 
     List<Note> searchByUidAndTimeAndLocation(Map<String, Object> params);
+
+    @Select("select id,content from t_note_list where content like '_PIC:%' and create_time >= #{ts,jdbcType=INTEGER}")
+    List<Note> selectPicByTime(@Param("ts") Integer timestamp);
 }

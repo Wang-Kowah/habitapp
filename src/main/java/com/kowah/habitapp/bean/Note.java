@@ -13,6 +13,8 @@ public class Note {
     private Integer type;
 
     private String content;
+    @JsonIgnore
+    private String picText;
 
     private BigDecimal lat;
 
@@ -52,6 +54,14 @@ public class Note {
 
     public void setContent(String content) {
         this.content = content == null ? null : content.trim();
+    }
+
+    public String getPicText() {
+        return picText;
+    }
+
+    public void setPicText(String picText) {
+        this.picText = picText == null ? null : picText.trim();
     }
 
     public BigDecimal getLat() {

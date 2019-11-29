@@ -106,7 +106,6 @@ public class UserController {
             uid = Integer.parseInt(uidStr);
             type = Integer.parseInt(typeStr);
         } catch (Exception e) {
-            logger.error("", e);
             errorCode = ErrorCode.PARAM_ERROR;
             result.put("retcode", errorCode.getCode());
             result.put("msg", errorCode.getMsg());
@@ -557,6 +556,7 @@ public class UserController {
         //type 0:每日总结/1:每周总结/2:日关键词/3:周关键词/4:月关键词
 //        String typeStr = request.getParameter("type");
         String key = request.getParameter("key");
+        String picStr = request.getParameter("pic");
         String pageNumStr = request.getParameter("pageNum");
         String pageSizeStr = request.getParameter("pageSize");
 
@@ -572,6 +572,13 @@ public class UserController {
             result.put("retcode", errorCode.getCode());
             result.put("msg", errorCode.getMsg());
             return result;
+        }
+
+        boolean pic;
+        try {
+            pic = Boolean.parseBoolean(picStr);
+        } catch (Exception e) {
+            pic = false;
         }
 
         try {

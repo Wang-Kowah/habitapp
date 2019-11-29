@@ -19,7 +19,7 @@ spring:
       filters: stat
       max-active: 20
       max-wait: 60000
-      min-idle: 1
+      min-idle: 5
       validation-query: select 'x'
       max-open-prepared-statements: 20
       pool-prepared-statements: true

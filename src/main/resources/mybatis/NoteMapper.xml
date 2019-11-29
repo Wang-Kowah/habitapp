@@ -6,6 +6,7 @@
         <result column="uid" property="uid" jdbcType="INTEGER"/>
         <result column="type" property="type" jdbcType="INTEGER"/>
         <result column="content" property="content" jdbcType="VARCHAR"/>
+        <result column="pic_text" property="picText" jdbcType="VARCHAR"/>
         <result column="lat" property="lat" jdbcType="DECIMAL"/>
         <result column="lng" property="lng" jdbcType="DECIMAL"/>
         <result column="create_time" property="createTime" jdbcType="INTEGER"/>
@@ -16,7 +17,7 @@
         <result column="count" property="count" jdbcType="INTEGER"/>
     </resultMap>
     <sql id="Base_Column_List">
-    id, uid, type, content, lat, lng, create_time, del_flag
+    id, uid, type, content, pic_text, lat, lng, create_time, del_flag
   </sql>
     <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer">
         select
@@ -29,12 +30,11 @@
     where id = #{id,jdbcType=INTEGER}
   </delete>
     <insert id="insert" parameterType="com.kowah.habitapp.bean.Note">
-    insert into t_note_list (id, uid, type, 
-      content, lat, lng, 
-      create_time, del_flag)
+    insert into t_note_list (id, uid, type,
+    content, pic_text, lat, lng, create_time, del_flag)
     values (#{id,jdbcType=INTEGER}, #{uid,jdbcType=INTEGER}, #{type,jdbcType=INTEGER}, 
-      #{content,jdbcType=VARCHAR}, #{lat,jdbcType=DECIMAL}, #{lng,jdbcType=DECIMAL}, 
-      #{createTime,jdbcType=INTEGER}, #{delFlag,jdbcType=INTEGER})
+      #{content,jdbcType=VARCHAR}, #{picText,jdbcType=VARCHAR}, #{lat,jdbcType=DECIMAL}, 
+      #{lng,jdbcType=DECIMAL}, #{createTime,jdbcType=INTEGER}, #{delFlag,jdbcType=INTEGER})
   </insert>
     <insert id="insertSelective" parameterType="com.kowah.habitapp.bean.Note">
         insert into t_note_list
@@ -50,6 +50,9 @@
             </if>
             <if test="content != null">
                 content,
+            </if>
+            <if test="picText != null">
+                pic_text,
             </if>
             <if test="lat != null">
                 lat,
@@ -77,6 +80,9 @@
             <if test="content != null">
                 #{content,jdbcType=VARCHAR},
             </if>
+            <if test="picText != null">
+                #{picText,jdbcType=VARCHAR},
+            </if>
             <if test="lat != null">
                 #{lat,jdbcType=DECIMAL},
             </if>
@@ -103,6 +109,9 @@
             <if test="content != null">
                 content = #{content,jdbcType=VARCHAR},
             </if>
+            <if test="picText != null">
+                pic_text = #{picText,jdbcType=VARCHAR},
+            </if>
             <if test="lat != null">
                 lat = #{lat,jdbcType=DECIMAL},
             </if>
@@ -123,6 +132,7 @@
     set uid = #{uid,jdbcType=INTEGER},
       type = #{type,jdbcType=INTEGER},
       content = #{content,jdbcType=VARCHAR},
+      pic_text = #{picText,jdbcType=VARCHAR},
       lat = #{lat,jdbcType=DECIMAL},
       lng = #{lng,jdbcType=DECIMAL},
       create_time = #{createTime,jdbcType=INTEGER},

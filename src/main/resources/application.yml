@@ -39,6 +39,8 @@ mybatis:
   type-aliases-package: com.kowah.habitapp.bean    # 对应实体类的路径
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    cache-enabled: true
+    local-cache-scope: session
 
 pagehelper:
   helper-dialect: mysql
