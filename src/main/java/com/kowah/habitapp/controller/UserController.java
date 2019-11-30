@@ -594,6 +594,7 @@ public class UserController {
         Map<String, Object> params = new HashMap<>();
         params.put("uid", uid);
         params.put("key", '%' + key + '%');
+        params.put("pic", pic);
         PageInfo searchResult = pageService.search(params, pageNum, pageSize, type);
         result.put("result", searchResult);
         result.put("retcode", errorCode.getCode());

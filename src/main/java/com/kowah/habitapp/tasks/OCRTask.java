@@ -19,19 +19,21 @@ public class OCRTask {
     @Autowired
     private NoteMapper noteMapper;
 
-    @Scheduled(cron = "0 10 * * * ?") // 每小时10分调度
+    @Scheduled(cron = "0 * * * * ?") // 每小时10分调度
     public void OCR() {
         OCRUtil ocrUtil = new OCRUtil();
-        String token = ocrUtil.updateToken();
-        List<Note> notes = noteMapper.selectPicByTime((int) (System.currentTimeMillis() / 1000));
-        for (Note node : notes.toArray(new Note[0])) {
-            String picPath = "http://www.shunlushunlu.cn/habit/user/pic?picName=" + node.getContent();
-            String result = ocrUtil.processOCR(picPath, "24.cafe131ad76121d3915abfa296ef0518.2592000.1577467964.282335-17874287");
-            if (result != null) {
-                node.setPicText(result.length() > 512 ? result.substring(0, 512) : result);
-                noteMapper.updateByPrimaryKeySelective(node);
-            }
-        }
+//        String token = ocrUtil.updateToken();
+//        List<Note> notes = noteMapper.selectPicByTime((int) (System.currentTimeMillis() / 1000 - 60 * 60));
 
+        List<Note> notes = noteMapper.selectUntaggedPicByTime(0);
+        Note node = notes.get(0);
+        String picPath = "http://www.shunlushunlu.cn/habit/user/pic?picName=" + node.getContent();
+        String result = ocrUtil.processOCR(picPath, "24.cafe131ad76121d3915abfa296ef0518.2592000.1577467964.282335-17874287");
+        if (result == null || result.isEmpty()) {
+            node.setPicText("∅");
+        } else {
+            node.setPicText(result.length() > 512 ? result.substring(0, 512) : result);
+        }
+        noteMapper.updateByPrimaryKeySelective(node);
     }
 }

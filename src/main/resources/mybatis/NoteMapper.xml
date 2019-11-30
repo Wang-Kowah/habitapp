@@ -161,7 +161,11 @@
     <select id="searchByUidAndTypeAndKey" resultMap="BaseResultMap">
     select * from t_note_list
     where uid = #{uid,jdbcType=INTEGER} and type = #{type,jdbcType=INTEGER}
-    and content like #{key,jdbcType=VARCHAR} and content not like '_PIC:%'
+    and((content like #{key,jdbcType=VARCHAR} and content not like '_PIC:%')
+    <if test="pic == true">
+        or (pic_text like #{key,jdbcType=VARCHAR} and content like '_PIC:%')
+    </if>
+    )
     collate utf8mb4_unicode_ci
     order by create_time desc
   </select>
