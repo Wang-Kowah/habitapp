@@ -14,6 +14,7 @@ import com.kowah.habitapp.service.PageService;
 import com.kowah.habitapp.service.SendMsgService;
 import com.kowah.habitapp.utils.JiebaUtil;
 import com.kowah.habitapp.utils.LatAndLongitudeUtil;
+import io.swagger.annotations.Api;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Api
 @RestController
 @RequestMapping("/user")
 public class UserController {
@@ -39,7 +41,7 @@ public class UserController {
     // 默认拉取10条便签
     private static final int DEFAULT_NOTE_HISTORY = 10;
     // 此时此地默认取60分钟
-    private static final int DEFAULT_TIME_RANGE = 60 * 60;
+    private static final int DEFAULT_TIME_RANGE = 60;
     // 此时此地默认取1000m
     private static final int DEFAULT_DISTANCE_RANGE = 1000;
     // 此时此地默认取四周
@@ -49,13 +51,9 @@ public class UserController {
     private static final String NOTE_PIC_LOCATION = "/data/habit/pic/note";
 
     @Autowired
-    private DayKeywordMapper dayKeywordMapper;
-    @Autowired
     private NoteMapper noteMapper;
     @Autowired
     private PageService pageService;
-    @Autowired
-    private PeriodKeywordMapper periodKeywordMapper;
     @Autowired
     private SendMsgService sendMsgService;
     @Autowired
@@ -65,16 +63,11 @@ public class UserController {
      * 获取个人信息
      */
     @GetMapping("/info")
-    public Map<String, Object> getUserInfo(HttpServletRequest request, HttpServletResponse response) {
+    public Map<String, Object> getUserInfo(@RequestParam("uid") Integer uid) {
         Map<String, Object> result = new HashMap<>();
         ErrorCode errorCode = ErrorCode.SUCCESS;
-        String uidStr = request.getParameter("uid");
 
-        int uid;
-        try {
-            uid = Integer.parseInt(uidStr);
-        } catch (Exception e) {
-            logger.error("", e);
+        if (uid == null) {
             errorCode = ErrorCode.USER_IS_NOT_EXIST;
             result.put("retcode", errorCode.getCode());
             result.put("msg", errorCode.getMsg());
@@ -93,31 +86,18 @@ public class UserController {
      * 获取便签历史记录
      */
     @GetMapping("/noteList")
-    public Map<String, Object> getNoteList(HttpServletRequest request, HttpServletResponse response) {
+    public Map<String, Object> getNoteList(@RequestParam("uid") Integer uid,
+                                           @RequestParam("type") Integer type,
+                                           @RequestParam(value = "pageNum", required = false, defaultValue = "1") Integer pageNum,
+                                           @RequestParam(value = "pageSize", required = false, defaultValue = DEFAULT_NOTE_HISTORY + "") Integer pageSize) {
         Map<String, Object> result = new HashMap<>();
         ErrorCode errorCode = ErrorCode.SUCCESS;
-        String uidStr = request.getParameter("uid");
-        String typeStr = request.getParameter("type");
-        String pageNumStr = request.getParameter("pageNum");
-        String pageSizeStr = request.getParameter("pageSize");
 
-        int uid, type, pageNum, pageSize;
-        try {
-            uid = Integer.parseInt(uidStr);
-            type = Integer.parseInt(typeStr);
-        } catch (Exception e) {
+        if (uid == null || type == null) {
             errorCode = ErrorCode.PARAM_ERROR;
             result.put("retcode", errorCode.getCode());
             result.put("msg", errorCode.getMsg());
             return result;
-        }
-
-        try {
-            pageNum = Integer.parseInt(pageNumStr);
-            pageSize = Integer.parseInt(pageSizeStr);
-        } catch (Exception e) {
-            pageSize = DEFAULT_NOTE_HISTORY;
-            pageNum = 1;
         }
 
         Map<String, Object> params = new HashMap<>();
@@ -136,25 +116,16 @@ public class UserController {
      * 发送便签
      */
     @PostMapping("/sendNote")
-    public Map<String, Object> sendNote(HttpServletRequest request, HttpServletResponse response) {
+    public Map<String, Object> sendNote(@RequestParam("uid") Integer uid,
+                                        @RequestParam("type") Integer type,
+                                        @RequestParam("lat") String latStr,
+                                        @RequestParam("lng") String lngStr,
+                                        @RequestParam("msg") String msg) {
         Map<String, Object> result = new HashMap<>();
         ErrorCode errorCode = ErrorCode.SUCCESS;
-        String uidStr = request.getParameter("uid");
-        String typeStr = request.getParameter("type");
-        String latStr = request.getParameter("lat");
-        String lngStr = request.getParameter("lng");
-        String msg = request.getParameter("msg");
 
-        int uid, type;
-        try {
-            uid = Integer.parseInt(uidStr);
-            type = Integer.parseInt(typeStr);
-            if (msg.trim().equals("")) {
-                throw new Exception();
-            }
-        } catch (Exception e) {
-            logger.error("", e);
-            errorCode = ErrorCode.USER_IS_NOT_EXIST;
+        if (uid == null || type == null || msg == null || msg.trim().isEmpty()) {
+            errorCode = ErrorCode.PARAM_ERROR;
             result.put("retcode", errorCode.getCode());
             result.put("msg", errorCode.getMsg());
             return result;
@@ -190,23 +161,11 @@ public class UserController {
      * 用户注册
      */
     @PostMapping("/signUp")
-    public Map<String, Object> signUp(HttpServletRequest request, HttpServletResponse response) {
+    public Map<String, Object> signUp(@RequestParam("mobile") String mobileStr) {
         Map<String, Object> result = new HashMap<>();
         ErrorCode errorCode = ErrorCode.SUCCESS;
-        String mobileStr = request.getParameter("mobile");
-        //用户名后台生成，格式:"用户"+手机号后4位+10位时间戳
-//        String name = request.getParameter("name");
-        //去除密码，注册码仅用于登录
-//        String password = request.getParameter("password");
 
-//        long mobile;
-//        try {
-//            mobile = Long.parseLong(mobileStr);
-//            if (name.equals("") || password.equals("")) {
-//                throw new Exception();
-//            }
-//        } catch (Exception e)
-        if (mobileStr.length() != 11) {
+        if (mobileStr == null || mobileStr.length() != 11) {
             errorCode = ErrorCode.PARAM_ERROR;
             result.put("retcode", errorCode.getCode());
             result.put("msg", errorCode.getMsg());
@@ -295,12 +254,11 @@ public class UserController {
      * 获取验证码
      */
     @PostMapping("/getVerifyCode")
-    public Map<String, Object> verifyCode(HttpServletRequest request, HttpServletResponse response) {
+    public Map<String, Object> verifyCode(@RequestParam("mobile") String mobile) {
         Map<String, Object> result = new HashMap<>();
         ErrorCode errorCode;
-        String mobile = request.getParameter("mobile");
 
-        if (mobile.length() != 11) {
+        if (mobile == null || mobile.length() != 11) {
             errorCode = ErrorCode.PARAM_ERROR;
             result.put("retcode", errorCode.getCode());
             result.put("msg", errorCode.getMsg());
@@ -324,11 +282,10 @@ public class UserController {
      * 验证码校验模块
      */
     @PostMapping("/checkVerifyCode")
-    public Map<String, Object> checkVerifyCode(HttpServletRequest request, HttpServletResponse response) {
+    public Map<String, Object> checkVerifyCode(@RequestParam("mobile") String mobile,
+                                               @RequestParam("code") String msgCode) {
         Map<String, Object> result = new HashMap<>();
         ErrorCode errorCode = ErrorCode.SUCCESS;
-        String mobile = request.getParameter("mobile");
-        String msgCode = request.getParameter("code");
 
         // iOS上架审核要求白名单
         if (mobile.equals("15302714670") && msgCode.equals("1234")) {
@@ -350,15 +307,13 @@ public class UserController {
      * 上传头像
      */
     @PostMapping("/uploadProfile")
-    public Map<String, Object> profilePic(@RequestParam("pic") MultipartFile pic, HttpServletRequest request) {
+    public Map<String, Object> profilePic(@RequestParam("uid") Integer uid,
+                                          @RequestParam("pic") MultipartFile pic,
+                                          HttpServletRequest request) {
         Map<String, Object> result = new HashMap<>();
         ErrorCode errorCode = ErrorCode.SUCCESS;
-        String uidStr = request.getParameter("uid");
 
-        int uid;
-        try {
-            uid = Integer.parseInt(uidStr);
-        } catch (Exception e) {
+        if (uid == null) {
             errorCode = ErrorCode.PARAM_ERROR;
             result.put("retcode", errorCode.getCode());
             result.put("msg", errorCode.getMsg());
@@ -382,7 +337,7 @@ public class UserController {
                     throw new Exception();
                 }
                 String suffix = fileNameOriginal.substring(pic.getOriginalFilename().lastIndexOf("."));
-                String filePath = PROFILE_PIC_LOCATION + File.separator + uidStr + suffix;
+                String filePath = PROFILE_PIC_LOCATION + File.separator + uid + suffix;
                 BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(new File(filePath)));
                 out.write(pic.getBytes());
                 out.flush();
@@ -410,15 +365,11 @@ public class UserController {
      * 获取头像
      */
     @GetMapping("/profile")
-    public Map<String, Object> getProfilePic(HttpServletRequest request, HttpServletResponse response) {
+    public Map<String, Object> getProfilePic(@RequestParam("uid") Integer uid, HttpServletResponse response) {
         Map<String, Object> result = new HashMap<>();
         ErrorCode errorCode;
-        String uidStr = request.getParameter("uid");
 
-        int uid;
-        try {
-            uid = Integer.parseInt(uidStr);
-        } catch (Exception e) {
+        if (uid == null) {
             errorCode = ErrorCode.PARAM_ERROR;
             result.put("retcode", errorCode.getCode());
             result.put("msg", errorCode.getMsg());
@@ -470,30 +421,17 @@ public class UserController {
      * 获取每日关键词记录
      */
     @GetMapping("/dayKeyword")
-    public Map<String, Object> getDayKeyword(HttpServletRequest request, HttpServletResponse response) {
+    public Map<String, Object> getDayKeyword(@RequestParam("uid") Integer uid,
+                                             @RequestParam(value = "pageNum", required = false, defaultValue = "1") Integer pageNum,
+                                             @RequestParam(value = "pageSize", required = false, defaultValue = DEFAULT_NOTE_HISTORY + "") Integer pageSize) {
         Map<String, Object> result = new HashMap<>();
         ErrorCode errorCode = ErrorCode.SUCCESS;
-        String uidStr = request.getParameter("uid");
-        String pageNumStr = request.getParameter("pageNum");
-        String pageSizeStr = request.getParameter("pageSize");
 
-        int uid, pageNum, pageSize;
-        try {
-            uid = Integer.parseInt(uidStr);
-        } catch (Exception e) {
-            logger.error("", e);
+        if (uid == null) {
             errorCode = ErrorCode.PARAM_ERROR;
             result.put("retcode", errorCode.getCode());
             result.put("msg", errorCode.getMsg());
             return result;
-        }
-
-        try {
-            pageNum = Integer.parseInt(pageNumStr);
-            pageSize = Integer.parseInt(pageSizeStr);
-        } catch (Exception e) {
-            pageSize = DEFAULT_NOTE_HISTORY;
-            pageNum = 1;
         }
 
         PageInfo<DayKeyword> dayKeywords = pageService.getDayKeywordList(uid, pageNum, pageSize);
@@ -507,32 +445,18 @@ public class UserController {
      * 获取每周/月关键词记录
      */
     @GetMapping("/keyword")
-    public Map<String, Object> getKeyword(HttpServletRequest request, HttpServletResponse response) {
+    public Map<String, Object> getKeyword(@RequestParam("uid") Integer uid,
+                                          @RequestParam("type") Integer type,
+                                          @RequestParam(value = "pageNum", required = false, defaultValue = "1") Integer pageNum,
+                                          @RequestParam(value = "pageSize", required = false, defaultValue = DEFAULT_NOTE_HISTORY + "") Integer pageSize) {
         Map<String, Object> result = new HashMap<>();
         ErrorCode errorCode = ErrorCode.SUCCESS;
-        String uidStr = request.getParameter("uid");
-        String typeStr = request.getParameter("type");
-        String pageNumStr = request.getParameter("pageNum");
-        String pageSizeStr = request.getParameter("pageSize");
 
-        int uid, type, pageNum, pageSize;
-        try {
-            uid = Integer.parseInt(uidStr);
-            type = Integer.parseInt(typeStr);
-        } catch (Exception e) {
-            logger.error("", e);
+        if (uid == null || type == null) {
             errorCode = ErrorCode.PARAM_ERROR;
             result.put("retcode", errorCode.getCode());
             result.put("msg", errorCode.getMsg());
             return result;
-        }
-
-        try {
-            pageNum = Integer.parseInt(pageNumStr);
-            pageSize = Integer.parseInt(pageSizeStr);
-        } catch (Exception e) {
-            pageSize = DEFAULT_NOTE_HISTORY;
-            pageNum = 1;
         }
 
         Map<String, Object> params = new HashMap<>();
@@ -549,53 +473,26 @@ public class UserController {
      * 搜索每日总结
      */
     @PostMapping("/search")
-    public Map<String, Object> search(HttpServletRequest request, HttpServletResponse response) {
+    public Map<String, Object> search(@RequestParam("uid") Integer uid,
+                                      @RequestParam("key") String key,
+                                      @RequestParam(value = "pic", required = false, defaultValue = "false") boolean pic,
+                                      @RequestParam(value = "pageNum", required = false, defaultValue = "1") Integer pageNum,
+                                      @RequestParam(value = "pageSize", required = false, defaultValue = DEFAULT_NOTE_HISTORY + "") Integer pageSize) {
         Map<String, Object> result = new HashMap<>();
         ErrorCode errorCode = ErrorCode.SUCCESS;
-        String uidStr = request.getParameter("uid");
-        //type 0:每日总结/1:每周总结/2:日关键词/3:周关键词/4:月关键词
-//        String typeStr = request.getParameter("type");
-        String key = request.getParameter("key");
-        String picStr = request.getParameter("pic");
-        String pageNumStr = request.getParameter("pageNum");
-        String pageSizeStr = request.getParameter("pageSize");
 
-        int uid, type = 0, pageNum, pageSize;
-        try {
-            uid = Integer.parseInt(uidStr);
-            if (StringUtils.isEmpty(key) || StringUtils.isBlank(key)) {
-                throw new Exception();
-            }
-        } catch (Exception e) {
-            logger.error("", e);
+        if (uid == null || StringUtils.isEmpty(key) || StringUtils.isBlank(key)) {
             errorCode = ErrorCode.PARAM_ERROR;
             result.put("retcode", errorCode.getCode());
             result.put("msg", errorCode.getMsg());
             return result;
         }
 
-        boolean pic;
-        try {
-            pic = Boolean.parseBoolean(picStr);
-        } catch (Exception e) {
-            pic = false;
-        }
-
-        try {
-//            type = Integer.parseInt(typeStr);
-            pageNum = Integer.parseInt(pageNumStr);
-            pageSize = Integer.parseInt(pageSizeStr);
-        } catch (Exception e) {
-//            type = 0;
-            pageNum = 1;
-            pageSize = DEFAULT_NOTE_HISTORY;
-        }
-
         Map<String, Object> params = new HashMap<>();
         params.put("uid", uid);
         params.put("key", '%' + key + '%');
         params.put("pic", pic);
-        PageInfo searchResult = pageService.search(params, pageNum, pageSize, type);
+        PageInfo searchResult = pageService.search(params, pageNum, pageSize, 0);
         result.put("result", searchResult);
         result.put("retcode", errorCode.getCode());
         result.put("msg", errorCode.getMsg());
@@ -606,21 +503,18 @@ public class UserController {
      * 发送图片便签
      */
     @PostMapping("/sendPic")
-    public Map<String, Object> sendPic(HttpServletRequest request, @RequestParam("pic") MultipartFile pic) {
+    public Map<String, Object> sendPic(@RequestParam("uid") Integer uid,
+                                       @RequestParam("type") Integer type,
+                                       @RequestParam("lat") String latStr,
+                                       @RequestParam("lng") String lngStr,
+                                       @RequestParam("pic") MultipartFile pic,
+                                       HttpServletRequest request) {
         Map<String, Object> result = new HashMap<>();
         ErrorCode errorCode = ErrorCode.SUCCESS;
-        String uidStr = request.getParameter("uid");
-        String typeStr = request.getParameter("type");
-        String latStr = request.getParameter("lat");
-        String lngStr = request.getParameter("lng");
 
-        int uid, type;
-        try {
-            uid = Integer.parseInt(uidStr);
-            type = Integer.parseInt(typeStr);
-        } catch (Exception e) {
-            logger.error("", e);
-            errorCode = ErrorCode.USER_IS_NOT_EXIST;
+
+        if (uid == null || type == null) {
+            errorCode = ErrorCode.PARAM_ERROR;
             result.put("retcode", errorCode.getCode());
             result.put("msg", errorCode.getMsg());
             return result;
@@ -638,7 +532,7 @@ public class UserController {
                 }
                 long now = System.currentTimeMillis();
                 String suffix = fileNameOriginal.substring(pic.getOriginalFilename().lastIndexOf("."));
-                String fileDir = NOTE_PIC_LOCATION + File.separator + uidStr;
+                String fileDir = NOTE_PIC_LOCATION + File.separator + uid;
                 File dir = new File(fileDir);
                 if (!dir.exists()) {
                     dir.mkdirs();
@@ -649,7 +543,7 @@ public class UserController {
                 out.flush();
                 out.close();
 
-                String picName = "_PIC:" + uidStr + File.separator + now + suffix;
+                String picName = "_PIC:" + uid + File.separator + now + suffix;
                 result.put("picName", picName);
 
                 // 更新数据库
@@ -683,12 +577,11 @@ public class UserController {
      * 获取图片便签
      */
     @GetMapping("/pic")
-    public Map<String, Object> getPic(HttpServletRequest request, HttpServletResponse response) {
+    public Map<String, Object> getPic(@RequestParam("picName") String picName, HttpServletResponse response) {
         Map<String, Object> result = new HashMap<>();
         ErrorCode errorCode;
-        String picName = request.getParameter("picName");
 
-        if (StringUtils.isEmpty(picName) || StringUtils.isBlank(picName) || !picName.startsWith("_PIC:")) {
+        if (picName == null || !picName.startsWith("_PIC:")) {
             errorCode = ErrorCode.PARAM_ERROR;
             result.put("retcode", errorCode.getCode());
             result.put("msg", errorCode.getMsg());
@@ -739,39 +632,25 @@ public class UserController {
      * 此时此地模块
      */
     @PostMapping("/hereAndNow")
-    public Map<String, Object> hereAndNow(HttpServletRequest request, HttpServletResponse response) {
+    public Map<String, Object> hereAndNow(@RequestParam("uid") Integer uid,
+                                          @RequestParam("lat") String latStr,
+                                          @RequestParam("lng") String lngStr,
+                                          @RequestParam(value = "pic", required = false, defaultValue = "false") boolean pic,
+                                          @RequestParam(value = "time", required = false, defaultValue = DEFAULT_TIME_RANGE + "") Integer time,
+                                          @RequestParam(value = "distance", required = false, defaultValue = DEFAULT_DISTANCE_RANGE + "") Integer distance) {
         Map<String, Object> result = new HashMap<>();
         ErrorCode errorCode = ErrorCode.SUCCESS;
-        String uidStr = request.getParameter("uid");
-        String latStr = request.getParameter("lat");
-        String lngStr = request.getParameter("lng");
-        String timeStr = request.getParameter("time");
-        String distanceStr = request.getParameter("distance");
-        String picStr = request.getParameter("pic");
 
-        int time, distance, uid;
-        try {
-            time = Integer.parseInt(timeStr) * 60;
-        } catch (Exception e) {
-            time = DEFAULT_TIME_RANGE;
-        }
-
-        try {
-            distance = Integer.parseInt(distanceStr);
-        } catch (Exception e) {
-            distance = DEFAULT_DISTANCE_RANGE;
-        }
-
-        boolean pic;
-        try {
-            pic = Boolean.parseBoolean(picStr);
-        } catch (Exception e) {
-            pic = false;
+        if (uid == null || latStr == null || lngStr == null) {
+            errorCode = ErrorCode.PARAM_ERROR;
+            result.put("retcode", errorCode.getCode());
+            result.put("msg", errorCode.getMsg());
+            return result;
         }
 
         BigDecimal lat, lng;
         try {
-            uid = Integer.parseInt(uidStr);
+            time *= 60;
             lat = new BigDecimal(latStr);
             lng = new BigDecimal(lngStr);
 
@@ -854,13 +733,12 @@ public class UserController {
      * 交流助理模块
      */
     @PostMapping("/extractVoiceText")
-    public Map<String, Object> extractVoiceText(HttpServletRequest request, HttpServletResponse response) {
+    public Map<String, Object> extractVoiceText(@RequestParam("uid") Integer uid,
+                                                @RequestParam("text") String voiceStr) {
         Map<String, Object> result = new HashMap<>();
         ErrorCode errorCode = ErrorCode.SUCCESS;
-        String uidStr = request.getParameter("uid");
-        String voiceStr = request.getParameter("text");
 
-        int uid, topN = 2, type = 0;
+        int topN = 2, type = 0;
 
         // 空白字符串直接返回
         if (StringUtils.isEmpty(voiceStr) || StringUtils.isBlank(voiceStr)) {
@@ -871,10 +749,7 @@ public class UserController {
             return result;
         }
 
-        try {
-            uid = Integer.parseInt(uidStr);
-        } catch (Exception e) {
-            logger.error("", e);
+        if (uid == null) {
             errorCode = ErrorCode.PARAM_ERROR;
             result.put("retcode", errorCode.getCode());
             result.put("msg", errorCode.getMsg());

@@ -50,6 +50,8 @@ public class PageServiceImpl implements PageService {
     @Override
     public PageInfo search(Map<String, Object> params, int pageNum, int pageSize, int type) {
         List result = new ArrayList();
+
+        //type 0:每日总结/1:每周总结/2:日关键词/3:周关键词/4:月关键词
         switch (type) {
             case 0:
             case 1:
