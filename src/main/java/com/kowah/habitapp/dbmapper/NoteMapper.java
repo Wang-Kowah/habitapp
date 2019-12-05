@@ -39,6 +39,6 @@ public interface NoteMapper {
     List<Note> searchByUidAndTimeAndLocation(Map<String, Object> params);
 
     @Select("select id,content from t_note_list where content like '_PIC:%'" +
-            "and pic_text is null and create_time >= #{ts,jdbcType=INTEGER} limit 5")
+            "and pic_text is null and create_time >= #{ts,jdbcType=INTEGER} limit 1")
     List<Note> selectUntaggedPicByTime(@Param("ts") Integer timestamp);
 }

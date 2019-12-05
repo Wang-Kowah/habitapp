@@ -23,12 +23,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class OCRUtil {
+    private static final String NOTE_PIC_LOCATION = "/data/habit/pic/note/";
+    private static final String BASE_URL = "http://www.shunlushunlu.cn/habit/user/pic?picName=";
+
     private static CloseableHttpClient httpClient;
 
     public static void main(String[] args) {
 //        System.out.println(updateToken());
-        System.out.println(processOCR("F:\\1.png", updateToken()));
-//        System.out.println(processOCR("F:\\PIC\\1.png", "24.cafe131ad76121d3915abfa296ef0518.2592000.1577467964.282335-17874287"));
+        System.out.println(processOCR("_PIC:1/1573363150158.jpg", "24.cafe131ad76121d3915abfa296ef0518.2592000.1577467964.282335-17874287"));
     }
 
     // 复用httpclient
@@ -63,6 +65,66 @@ public class OCRUtil {
         return null;
     }
 
+    // 请求百度OCR服务，图片的base64编码或者图片URL二选一，优先URL
+    public static String processOCR(String picName, String token) {
+        try {
+            httpClient = getHttpClient();
+            HttpPost httpPost = new HttpPost("https://aip.baidubce.com/rest/2.0/ocr/v1/general_basic?access_token=" + token);
+            httpPost.setHeader("Content-Type", "application/x-www-form-urlencoded");
+            List<NameValuePair> pairs = new ArrayList<>();
+            pairs.add(new BasicNameValuePair("url", BASE_URL + picName));
+            httpPost.setEntity(new UrlEncodedFormEntity(pairs, "UTF-8"));
+            HttpResponse response = httpClient.execute(httpPost);
+            HttpEntity entity = response.getEntity();
+            String responseBody = EntityUtils.toString(entity);
+            JSONObject jsonObject = JSONObject.parseObject(responseBody);
+
+            if (jsonObject.getInteger("error_code") == null) {
+                return jsonObject.getJSONArray("words_result")
+                        .stream()
+                        .map(o -> ((JSONObject) o).getString("words"))
+                        .collect(Collectors.joining(""));
+            } else if (jsonObject.getInteger("error_code") == 282112) {
+                // URL下载超时的话，改用base64请求
+                return processBase64(picName, token);
+            } else {
+                return "error_msg: " + jsonObject.getString("error_msg");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    // URL下载超时的话，改用base64请求
+    private static String processBase64(String picName, String token) {
+        try {
+            httpClient = getHttpClient();
+            HttpPost httpPost = new HttpPost("https://aip.baidubce.com/rest/2.0/ocr/v1/general_basic?access_token=" + token);
+            httpPost.setHeader("Content-Type", "application/x-www-form-urlencoded");
+            List<NameValuePair> pairs = new ArrayList<>();
+            String base64Str = image2Base64(NOTE_PIC_LOCATION + picName.substring(5));
+            pairs.add(new BasicNameValuePair("image", base64Str));
+            httpPost.setEntity(new UrlEncodedFormEntity(pairs, "UTF-8"));
+            HttpResponse response = httpClient.execute(httpPost);
+            HttpEntity entity = response.getEntity();
+            String responseBody = EntityUtils.toString(entity);
+            JSONObject jsonObject = JSONObject.parseObject(responseBody);
+
+            if (jsonObject.getInteger("error_code") == null) {
+                return jsonObject.getJSONArray("words_result")
+                        .stream()
+                        .map(o -> ((JSONObject) o).getString("words"))
+                        .collect(Collectors.joining(""));
+            } else {
+                return "error_msg: " + jsonObject.getString("error_msg");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     // 将图片文件转化为Base64编码字符串
     private static String image2Base64(String path) {
         byte[] data = null;
@@ -78,29 +140,5 @@ public class OCRUtil {
         // 对字节数组Base64编码
         Base64.Encoder encoder = Base64.getEncoder();
         return encoder.encodeToString(data);
-    }
-
-    // 请求百度OCR服务，图片的base64编码或者图片url二选一
-    public static String processOCR(String path, String token) {
-        try {
-            httpClient = getHttpClient();
-            HttpPost httpPost = new HttpPost("https://aip.baidubce.com/rest/2.0/ocr/v1/general_basic?access_token=" + token);
-            httpPost.setHeader("Content-Type", "application/x-www-form-urlencoded");
-            List<NameValuePair> pairs = new ArrayList<>();
-//            String base64Str = image2Base64(path);
-//            pairs.add(new BasicNameValuePair("image", base64Str));
-            pairs.add(new BasicNameValuePair("url", path));
-            httpPost.setEntity(new UrlEncodedFormEntity(pairs, "UTF-8"));
-            HttpResponse response = httpClient.execute(httpPost);
-            HttpEntity entity = response.getEntity();
-            String responseBody = EntityUtils.toString(entity);
-            JSONArray jsonArray = JSONObject.parseObject(responseBody).getJSONArray("words_result");
-            return jsonArray.stream()
-                    .map(o -> ((JSONObject) o).getString("words"))
-                    .collect(Collectors.joining(""));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
     }
 }

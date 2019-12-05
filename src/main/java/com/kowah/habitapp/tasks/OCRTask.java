@@ -9,7 +9,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
 import java.util.List;
 
 @Component
@@ -19,21 +18,19 @@ public class OCRTask {
     @Autowired
     private NoteMapper noteMapper;
 
-    @Scheduled(cron = "0 * * * * ?") // 每小时10分调度
+    @Scheduled(cron = "0 * * * * ?") // 每分钟识别一条，避免带宽占用过高
     public void OCR() {
         OCRUtil ocrUtil = new OCRUtil();
 //        String token = ocrUtil.updateToken();
-//        List<Note> notes = noteMapper.selectPicByTime((int) (System.currentTimeMillis() / 1000 - 60 * 60));
-
         List<Note> notes = noteMapper.selectUntaggedPicByTime(0);
-        Note node = notes.get(0);
-        String picPath = "http://www.shunlushunlu.cn/habit/user/pic?picName=" + node.getContent();
-        String result = ocrUtil.processOCR(picPath, "24.cafe131ad76121d3915abfa296ef0518.2592000.1577467964.282335-17874287");
-        if (result == null || result.isEmpty()) {
-            node.setPicText("∅");
-        } else {
-            node.setPicText(result.length() > 512 ? result.substring(0, 512) : result);
+        if (!notes.isEmpty()) {
+            Note node = notes.get(0);
+            String result = ocrUtil.processOCR(node.getContent(), "24.cafe131ad76121d3915abfa296ef0518.2592000.1577467964.282335-17874287");
+            // catch Exception的情况 -> ∅
+            // 不存在文字的情况为空字符串 -> ""
+            // OCR错误的也暂存 if result.startsWith("error_msg:")
+            node.setPicText(result == null ? "∅" : result.length() > 512 ? result.substring(0, 512) : result);
+            noteMapper.updateByPrimaryKeySelective(node);
         }
-        noteMapper.updateByPrimaryKeySelective(node);
     }
 }
