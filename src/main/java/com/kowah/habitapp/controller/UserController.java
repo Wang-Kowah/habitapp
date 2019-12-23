@@ -210,19 +210,9 @@ public class UserController {
      */
     @Deprecated
     @PostMapping("/logIn")
-    public Map<String, Object> logIn(HttpServletRequest request, HttpServletResponse response) {
+    public Map<String, Object> logIn(@RequestParam("mobile") String mobileStr) {
         Map<String, Object> result = new HashMap<>();
         ErrorCode errorCode = ErrorCode.SUCCESS;
-        String mobileStr = request.getParameter("mobile");
-//        String password = request.getParameter("password");
-
-//        long mobile;
-//        try {
-//            mobile = Long.parseLong(mobileStr);
-//            if (password.equals("")) {
-//                throw new Exception();
-//            }
-//        } catch (Exception e)
         if (mobileStr.length() != 11) {
             errorCode = ErrorCode.PARAM_ERROR;
             result.put("retcode", errorCode.getCode());
@@ -238,13 +228,7 @@ public class UserController {
             return result;
         }
 
-//        if (!md5(password).equals(user.getPassword())) {
-//            errorCode = ErrorCode.LOGIN_FAIL;
-//        }
-
-        if (errorCode.equals(ErrorCode.SUCCESS)) {
-            result.put("uid", user.getUid());
-        }
+        result.put("uid", user.getUid());
         result.put("retcode", errorCode.getCode());
         result.put("msg", errorCode.getMsg());
         return result;
@@ -734,7 +718,8 @@ public class UserController {
      */
     @PostMapping("/extractVoiceText")
     public Map<String, Object> extractVoiceText(@RequestParam("uid") Integer uid,
-                                                @RequestParam("text") String voiceStr) {
+                                                @RequestParam("text") String voiceStr,
+                                                @RequestParam(value = "pic", required = false, defaultValue = "false") boolean pic) {
         Map<String, Object> result = new HashMap<>();
         ErrorCode errorCode = ErrorCode.SUCCESS;
 
@@ -764,6 +749,7 @@ public class UserController {
                 Map<String, Object> params = new HashMap<>();
                 params.put("uid", uid);
                 params.put("type", type);
+                params.put("pic", pic);
                 params.put("key", '%' + keyword + '%');
                 notes.addAll(noteMapper.searchByUidAndTypeAndKey(params));
             }
