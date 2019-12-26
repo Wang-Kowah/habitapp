@@ -1,6 +1,5 @@
 package com.kowah.habitapp.utils;
 
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
