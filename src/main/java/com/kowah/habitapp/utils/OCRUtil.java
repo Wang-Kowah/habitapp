@@ -50,8 +50,8 @@ public class OCRUtil {
             //组装表单
             List<NameValuePair> pairs = new ArrayList<>();
             pairs.add(new BasicNameValuePair("grant_type", "client_credentials"));
-            pairs.add(new BasicNameValuePair("client_id", "q2uPyBe6LmWTZlvb0g1dzcHV"));
-            pairs.add(new BasicNameValuePair("client_secret", "y7S7hAI894BB3LF1yHYmvQEus1B6wPvj"));
+            pairs.add(new BasicNameValuePair("client_id", "ADqnbLHZB3mLzAyfGXb75sjO"));
+            pairs.add(new BasicNameValuePair("client_secret", "4nIo9XqykV6Hpdy7npLZsPBGKSe1h0Fc"));
             httpPost.setEntity(new UrlEncodedFormEntity(pairs, "UTF-8"));
             HttpResponse response = httpClient.execute(httpPost);
             HttpEntity entity = response.getEntity();
