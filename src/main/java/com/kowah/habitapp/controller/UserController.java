@@ -116,8 +116,8 @@ public class UserController {
     @PostMapping("/sendNote")
     public Map<String, Object> sendNote(@RequestParam("uid") Integer uid,
                                         @RequestParam("type") Integer type,
-                                        @RequestParam("lat") String latStr,
-                                        @RequestParam("lng") String lngStr,
+                                        @RequestParam(value = "lat", required = false, defaultValue = "") String latStr,
+                                        @RequestParam(value = "lng", required = false, defaultValue = "") String lngStr,
                                         @RequestParam("msg") String msg) {
         Map<String, Object> result = new HashMap<>();
         ErrorCode errorCode = ErrorCode.SUCCESS;
@@ -487,8 +487,8 @@ public class UserController {
     @PostMapping("/sendPic")
     public Map<String, Object> sendPic(@RequestParam("uid") Integer uid,
                                        @RequestParam("type") Integer type,
-                                       @RequestParam("lat") String latStr,
-                                       @RequestParam("lng") String lngStr,
+                                       @RequestParam(value = "lat", required = false, defaultValue = "") String latStr,
+                                       @RequestParam(value = "lng", required = false, defaultValue = "") String lngStr,
                                        @RequestParam("pic") MultipartFile pic,
                                        HttpServletRequest request) {
         Map<String, Object> result = new HashMap<>();
